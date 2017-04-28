@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+<AnchorPane fx:controller="pl.margoj.editor.gui.controllers.AboutController" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+            prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+    <children>
+        <Label layoutX="107.0" layoutY="14.0" prefHeight="77.0" prefWidth="352.0" text="MargoJ Edytor" textAlignment="CENTER">
+            <font>
+                <Font size="53.0"/>
+            </font>
+        </Label>
+        <Hyperlink fx:id="linkGithub" layoutX="367.0" layoutY="91.0" text="https://github.com/MargoJ/GameEditor"/>
+        <Label layoutX="14.0" layoutY="94.0" text="Wersja 1.0.0"/>
+        <TextArea editable="false" layoutX="10.0" layoutY="120.0" prefHeight="270.0" prefWidth="580.0" text="Todo" wrapText="true"/>
+    </children>
+</AnchorPane>
