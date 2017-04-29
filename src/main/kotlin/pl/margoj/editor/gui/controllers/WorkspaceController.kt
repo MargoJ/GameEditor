@@ -240,6 +240,29 @@ class WorkspaceController : CustomController
                 }
             }
 
+            if(editor.currentResourceBundle != null && editor.currentResourceBundle!!.touched)
+            {
+                val button = QuickAlert.create()
+                        .confirmation()
+                        .buttonTypes(
+                                ButtonType("Tak", ButtonBar.ButtonData.YES),
+                                ButtonType("Nie", ButtonBar.ButtonData.NO),
+                                ButtonType("Anuluj", ButtonBar.ButtonData.CANCEL_CLOSE)
+                        )
+                        .header("Niezapisane zmiany")
+                        .content(
+                                "Nie zapisałeś zmian w zestawie zasobów\nCzy chcesz zapisać je teraz?"
+                        )
+                        .showAndWait()
+
+                when (button.buttonData)
+                {
+                    ButtonBar.ButtonData.YES -> editor.currentResourceBundle!!.saveBundle()
+                    ButtonBar.ButtonData.NO -> Platform.exit()
+                    else -> event.consume()
+                }
+            }
+
             editor.currentResourceBundle = null // for cleanup
         }
     }
@@ -481,6 +504,7 @@ class WorkspaceController : CustomController
             val stream = ByteArrayInputStream(mapEditor.mapSerializer.serialize(map))
             editor.currentResourceBundle!!.saveResource(map, stream)
             editor.updateResourceView()
+            editor.currentResourceBundle!!.touched = false
 
             QuickAlert.create().information().header("Mapa została dodana do zestawu zasobów!").showAndWait()
         }
