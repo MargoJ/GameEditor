@@ -26,6 +26,7 @@ import pl.margoj.editor.map.cursor.ErasingCursor
 import pl.margoj.editor.map.cursor.FillingCursor
 import pl.margoj.editor.map.cursor.SingleElementCursor
 import pl.margoj.editor.map.objects.GatewayObjectTool
+import pl.margoj.editor.map.objects.RemoveObjectTool
 import pl.margoj.editor.utils.FileUtils
 import pl.margoj.editor.utils.JarUtils
 import pl.margoj.mrf.bundle.local.MargoMRFResourceBundle
@@ -262,8 +263,6 @@ class WorkspaceController : CustomController
                     else -> event.consume()
                 }
             }
-
-            editor.currentResourceBundle = null // for cleanup
         }
     }
 
@@ -504,7 +503,7 @@ class WorkspaceController : CustomController
             val stream = ByteArrayInputStream(mapEditor.mapSerializer.serialize(map))
             editor.currentResourceBundle!!.saveResource(map, stream)
             editor.updateResourceView()
-            editor.currentResourceBundle!!.touched = false
+            editor.mapEditor.touched = false
 
             QuickAlert.create().information().header("Mapa została dodana do zestawu zasobów!").showAndWait()
         }
@@ -547,6 +546,7 @@ class WorkspaceController : CustomController
 
         // init objects
         mapEditor.mapObjectTools.add(GatewayObjectTool())
+        mapEditor.mapObjectTools.add(RemoveObjectTool())
 
         if (EDITOR_DEBUGGING)
         {

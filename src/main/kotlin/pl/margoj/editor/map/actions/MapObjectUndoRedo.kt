@@ -5,6 +5,7 @@ import pl.margoj.editor.editors.RedoAction
 import pl.margoj.editor.editors.UndoAction
 import pl.margoj.editor.editors.UndoRedoAction
 import pl.margoj.editor.map.MapEditor
+import pl.margoj.editor.map.Selection
 import pl.margoj.mrf.map.MargoMap
 import pl.margoj.mrf.map.Point
 import pl.margoj.mrf.map.objects.MapObject
@@ -24,18 +25,26 @@ class MapObjectUndoRedo(
 
     override fun undo(editor: MapEditor, obj: MargoMap): RedoAction<MapEditor, MargoMap>
     {
-        this.swap(obj, old)
+        this.swap(editor, obj, old)
         return this
     }
 
     override fun redo(editor: MapEditor, obj: MargoMap): UndoAction<MapEditor, MargoMap>
     {
-        this.swap(obj, new)
+        this.swap(editor, obj, new)
         return this
     }
 
-    private fun swap(map: MargoMap, mapObject: MapObject<*>?)
+    private fun swap(editor: MapEditor, map: MargoMap, mapObject: MapObject<*>?)
     {
+        val redraws = HashSet<Point>()
+        val current = map.getObject(position)
+
+        if(current != null)
+        {
+            redraws.addAll(editor.getToolForObject(current)!!.getPoints(current))
+        }
+
         if (mapObject == null)
         {
             map.deleteObject(position)
@@ -43,6 +52,9 @@ class MapObjectUndoRedo(
         else
         {
             map.addObject(mapObject)
+            redraws.addAll(editor.getToolForObject(mapObject)!!.getPoints(mapObject))
         }
+
+        editor.redrawObjects(Selection(redraws))
     }
 }
