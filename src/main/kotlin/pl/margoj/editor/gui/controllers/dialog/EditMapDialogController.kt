@@ -35,7 +35,7 @@ class EditMapDialogController : CustomController
         this.scene = scene
     }
 
-    override fun initialize(location: URL, resources: ResourceBundle)
+    override fun initialize(location: URL, resources: ResourceBundle?)
     {
         FXUtils.makeNumberField(this.fieldMapWidth, false)
         FXUtils.makeNumberField(this.fieldMapHeight, false)

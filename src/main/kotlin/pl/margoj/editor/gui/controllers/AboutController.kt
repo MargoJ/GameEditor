@@ -13,7 +13,7 @@ class AboutController : CustomController
     @FXML
     private val linkGithub: Hyperlink? = null
 
-    override fun initialize(location: URL, resources: ResourceBundle)
+    override fun initialize(location: URL, resources: ResourceBundle?)
     {
         this.linkGithub!!.setOnAction {
             Desktop.getDesktop().browse(URI("https://github.com/MargoJ/GameEditor"))

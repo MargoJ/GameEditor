@@ -90,16 +90,19 @@ class GatewayObjectDialog : CustomController
             val old = this.map.getObject(position)
             val new = GatewayObject(this.position, Point(x, y), id)
 
-            val mapEditor = MargoJEditor.INSTANCE.mapEditor
-            mapEditor.currentMap!!.addObject(new)
-
-            if (old != null)
+            if(new != old)
             {
-                mapEditor.redrawObject(old)
-            }
-            mapEditor.redrawObject(new)
+                val mapEditor = MargoJEditor.INSTANCE.mapEditor
+                mapEditor.currentMap!!.addObject(new)
 
-            mapEditor.addUndoAction(MapObjectUndoRedo(this.position, old, new, "Dodaj/edytuj przejście"))
+                if (old != null)
+                {
+                    mapEditor.redrawObject(old)
+                }
+                mapEditor.redrawObject(new)
+
+                mapEditor.addUndoAction(MapObjectUndoRedo(this.position, old, new, "Dodaj/edytuj przejście"))
+            }
 
             this.scene.stage.close()
         }

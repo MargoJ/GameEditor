@@ -111,6 +111,9 @@ class WorkspaceController : CustomController
     lateinit var menuEditMap: MenuItem
 
     @FXML
+    lateinit var menuEditMapMetadata: MenuItem
+
+    @FXML
     lateinit var menuViewRedraw: MenuItem
 
     @FXML
@@ -462,6 +465,21 @@ class WorkspaceController : CustomController
             }
 
             FXUtils.loadDialog("editmap", "Edycja mapy", scene.stage)
+        }
+
+        this.menuEditMapMetadata.onAction = EventHandler {
+            if (!isMapEditorSelected)
+            {
+                return@EventHandler
+            }
+
+            if (mapEditor.currentMap == null)
+            {
+                QuickAlert.create().error().header("Nie można edytować mapy").content("Brak załadowanej mapy").showAndWait()
+                return@EventHandler
+            }
+
+            FXUtils.loadDialog("editmetadata", "Edycja danych mapy", scene.stage, mapEditor.currentMap)
         }
 
         this.menuViewRedraw.onAction = EventHandler {

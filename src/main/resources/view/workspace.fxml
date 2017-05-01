@@ -176,6 +176,11 @@
                                                         </MenuItem>
                                                         <SeparatorMenuItem mnemonicParsing="false" />
                                                         <MenuItem fx:id="menuEditMap" mnemonicParsing="false" text="Edytuj informacje o mapie" />
+                                          <MenuItem fx:id="menuEditMapMetadata" mnemonicParsing="false" text="Edytuj dane mapy" >
+                                              <accelerator>
+                                                  <KeyCodeCombination alt="UP" code="D" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                                              </accelerator>
+                                          </MenuItem>
                                                     </items>
                                                 </Menu>
                                                 <Menu mnemonicParsing="false" text="Widok">
@@ -185,7 +190,6 @@
                                                                 <KeyCodeCombination alt="UP" code="R" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                                                             </accelerator>
                                                         </MenuItem>
-                                                        <MenuItem mnemonicParsing="false" text="Unspecified Action" />
                                                     </items>
                                                 </Menu>
                                     <Menu mnemonicParsing="false" text="Zasoby">
