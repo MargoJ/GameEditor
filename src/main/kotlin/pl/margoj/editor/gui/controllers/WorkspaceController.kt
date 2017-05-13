@@ -32,7 +32,6 @@ import pl.margoj.editor.utils.JarUtils
 import pl.margoj.mrf.bundle.local.MargoMRFResourceBundle
 import pl.margoj.mrf.bundle.local.MountedResourceBundle
 import pl.margoj.mrf.map.MargoMap
-import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.FileInputStream
 import java.net.URL
@@ -173,6 +172,30 @@ class WorkspaceController : CustomController
     @FXML
     lateinit var hboxCursors: HBox
 
+    @FXML
+    lateinit var tilesetListLocal: ListView<String>
+
+    @FXML
+    lateinit var tilesetListBundle: ListView<String>
+
+    @FXML
+    lateinit var tilesetButtonToLocal: Button
+
+    @FXML
+    lateinit var tilesetButtonToBundle: Button
+
+    @FXML
+    lateinit var tilesetButtonOpenFolder: Button
+
+    @FXML
+    lateinit var tilesetButtonReload: Button
+
+    @FXML
+    lateinit var tilesetButtonUpdateBundle: Button
+
+    @FXML
+    lateinit var tilesetButtonUpdateLocal: Button
+
     val isMapEditorSelected: Boolean get() = this.tabPane.selectionModel?.selectedItem == this.tabMapEditor
 
     override fun preInit(scene: CustomScene<*>)
@@ -213,38 +236,11 @@ class WorkspaceController : CustomController
 
         scene.stage.onCloseRequest = EventHandler {
             event ->
-            for (abstractEditor in editor.editors)
-            {
-                if (abstractEditor.currentEditingObject != null && abstractEditor.touched)
-                {
-                    val button = QuickAlert.create()
-                            .confirmation()
-                            .buttonTypes(
-                                    ButtonType("Tak", ButtonBar.ButtonData.YES),
-                                    ButtonType("Nie", ButtonBar.ButtonData.NO),
-                                    ButtonType("Anuluj", ButtonBar.ButtonData.CANCEL_CLOSE)
-                            )
-                            .header("Niezapisane zmiany")
-                            .content(
-                                    "Nie zapisałeś zmian w pliku: ${abstractEditor.currentEditingObject?.resourceReadableName}\nCzy chcesz zapisać je teraz?"
-                            )
-                            .showAndWait()
+            editor.editors
+                    .filter { it.currentEditingObject != null && it.touched && !it.askForSave() }
+                    .forEach { event.consume() }
 
-                    when (button.buttonData)
-                    {
-                        ButtonBar.ButtonData.YES ->
-                            if (!abstractEditor.saveWithDialog())
-                            {
-                                event.consume()
-                            }
-                        ButtonBar.ButtonData.NO -> Platform.exit()
-                        else -> event.consume()
-                    }
-
-                }
-            }
-
-            if(editor.currentResourceBundle != null && editor.currentResourceBundle!!.touched)
+            if (editor.currentResourceBundle != null && editor.currentResourceBundle!!.touched)
             {
                 val button = QuickAlert.create()
                         .confirmation()
@@ -413,7 +409,15 @@ class WorkspaceController : CustomController
             {
                 FileInputStream(file).use { input ->
                     mapEditor.currentMap = mapEditor.mapDeserializer.deserialize(input)
+
+                    if(mapEditor.currentMap == null)
+                    {
+                        QuickAlert.create().information().header("Brak wymaganych tilesetow!").showAndWait()
+                        return@EventHandler
+                    }
+
                     mapEditor.saveFile = file
+                    mapEditor.save = mapEditor::saveWithDialog
 
                     QuickAlert.create().information().header("Mapa załadowana pomyślnie").showAndWait()
                 }
@@ -518,12 +522,12 @@ class WorkspaceController : CustomController
                 return@EventHandler
             }
 
-            val stream = ByteArrayInputStream(mapEditor.mapSerializer.serialize(map))
-            editor.currentResourceBundle!!.saveResource(map, stream)
-            editor.updateResourceView()
-            editor.mapEditor.touched = false
+            mapEditor.save = { editor.addMapToBundle(mapEditor.currentMap!!) }
 
-            QuickAlert.create().information().header("Mapa została dodana do zestawu zasobów!").showAndWait()
+            if (editor.addMapToBundle(map))
+            {
+                QuickAlert.create().information().header("Mapa została dodana do zestawu zasobów!").showAndWait()
+            }
         }
 
 

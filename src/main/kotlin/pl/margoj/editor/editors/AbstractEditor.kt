@@ -2,6 +2,8 @@
 
 package pl.margoj.editor.editors
 
+import javafx.scene.control.ButtonBar
+import javafx.scene.control.ButtonType
 import javafx.stage.FileChooser
 import javafx.stage.FileChooser.ExtensionFilter
 import pl.margoj.editor.MargoJEditor
@@ -19,6 +21,7 @@ abstract class AbstractEditor<E : AbstractEditor<E, T>, T : MargoResource>(prote
     var touched: Boolean = false
     var undoLimit = 50
     var saveFile: File? = null
+    var save: () -> Boolean = this::saveWithDialog
     lateinit var workspaceController: WorkspaceController
 
     fun touch()
@@ -128,6 +131,32 @@ abstract class AbstractEditor<E : AbstractEditor<E, T>, T : MargoResource>(prote
         {
             QuickAlert.create().exception(e).content("Nie można zapisać pliku").showAndWait()
             return false
+        }
+    }
+
+    fun askForSave(): Boolean
+    {
+        val button = QuickAlert.create()
+                .confirmation()
+                .buttonTypes(
+                        ButtonType("Tak", ButtonBar.ButtonData.YES),
+                        ButtonType("Nie", ButtonBar.ButtonData.NO),
+                        ButtonType("Anuluj", ButtonBar.ButtonData.CANCEL_CLOSE)
+                )
+                .header("Niezapisane zmiany")
+                .content(
+                        "Nie zapisałeś zmian w pliku: ${this.currentEditingObject?.resourceReadableName}\nCzy chcesz zapisać je teraz?"
+                )
+                .showAndWait()
+
+        when (button.buttonData)
+        {
+            ButtonBar.ButtonData.YES ->
+            {
+                return this.save()
+            }
+            ButtonBar.ButtonData.NO -> return true
+            else -> return false
         }
     }
 

@@ -2,6 +2,7 @@ package pl.margoj.editor
 
 import javafx.collections.FXCollections
 import javafx.scene.control.ButtonBar
+import javafx.scene.control.ButtonType
 import javafx.scene.control.MenuItem
 import javafx.scene.input.KeyCode
 import javafx.scene.text.Text
@@ -14,14 +15,22 @@ import pl.margoj.mrf.MargoResource
 import pl.margoj.mrf.Paths
 import pl.margoj.mrf.ResourceView
 import pl.margoj.mrf.bundle.MountResourceBundle
+import pl.margoj.mrf.map.MargoMap
+import pl.margoj.mrf.map.tileset.TilesetFile
+import java.io.ByteArrayInputStream
 import java.io.File
+import java.io.FileInputStream
 import java.util.Comparator
+import java.util.LinkedList
 import java.util.TreeMap
 import java.util.TreeSet
 
 class MargoJEditor private constructor()
 {
     lateinit var workspaceController: WorkspaceController
+        private set
+
+    lateinit var tilesetEditor: TilesetEditor
         private set
 
     val mapEditor: MapEditor = MapEditor(this)
@@ -49,6 +58,7 @@ class MargoJEditor private constructor()
             this.resourceItems.forEach { it.isDisable = value == null }
             field = value
             this.updateResourceView()
+            tilesetEditor.bundle = value
         }
 
     fun init(workspaceController: WorkspaceController)
@@ -66,6 +76,9 @@ class MargoJEditor private constructor()
                 this.deleteResource(text.view)
             }
         }
+
+        this.tilesetEditor = TilesetEditor(workspaceController)
+        this.tilesetEditor.init(this)
 
         Paths.TEMP_DIR = FileUtils.TEMP_DIRECTORY
         this.updateResourceView()
@@ -108,7 +121,7 @@ class MargoJEditor private constructor()
                 continue
             }
 
-            value.mapTo(items) { ResourceText("\t ${it.id} [${it.name}]", it) }
+            value.mapTo(items) { ResourceText("\t ${it.id} ${if (it.name.isEmpty()) "" else "[${it.name}]"}", it) }
         }
 
 
@@ -142,7 +155,21 @@ class MargoJEditor private constructor()
         {
             MargoResource.Category.MAPS ->
             {
+                if (this.mapEditor.currentMap != null && this.mapEditor.touched && !this.mapEditor.askForSave())
+                {
+                    return
+                }
+
                 this.mapEditor.currentMap = mapEditor.mapDeserializer.deserialize(input)
+
+                if (mapEditor.currentMap == null)
+                {
+                    QuickAlert.create().information().header("Brak wymaganych tilesetow!").content("Załaduj je z zestawu").showAndWait()
+                    return
+                }
+
+                mapEditor.save = { this.addMapToBundle(mapEditor.currentMap!!) }
+
                 QuickAlert.create().information().header("Załadowano zasób").content("Zasób został załadowany poprawnie").showAndWait()
                 this.workspaceController.tabPane.selectionModel.select(this.workspaceController.tabMapEditor)
             }
@@ -172,6 +199,56 @@ class MargoJEditor private constructor()
         this.updateResourceView()
     }
 
+    fun addMapToBundle(map: MargoMap): Boolean
+    {
+        // check if all tilesets are in bundle
+        val bundle = this.currentResourceBundle!!
+        val tilesetsInBundle = bundle.getResourcesByCategory(MargoResource.Category.TILESETS).map(MargoResource::id)
+        val missingTilesets = HashSet<String>()
+
+        map.forEach {
+            layer ->
+            layer.forEach {
+                fragment ->
+
+                if (fragment.tileset != null)
+                {
+                    fragment.tileset!!.files.stream().map(TilesetFile::name).filter { !tilesetsInBundle.contains(it) }.forEach { missingTilesets.add(it) }
+                }
+            }
+        }
+
+        if (missingTilesets.isNotEmpty())
+        {
+            val result = QuickAlert.create()
+                    .confirmation()
+                    .buttonTypes(ButtonType("Tak", ButtonBar.ButtonData.YES), ButtonType("Nie", ButtonBar.ButtonData.NO))
+                    .header("Mapa nie może być załadowana, w zestawie brakuje tilesetów!")
+                    .content("Czy chcesz je dodać?\nLista tilesetów: " + missingTilesets.joinToString("\n"))
+                    .showAndWait()
+
+            if(result.buttonData == ButtonBar.ButtonData.YES)
+            {
+                for (id in missingTilesets)
+                {
+                    bundle.saveResource(ResourceView(id, "", MargoResource.Category.TILESETS, "$id.png"), FileInputStream(File(FileUtils.TILESETS_DIRECTORY, "$id.png")))
+                }
+
+                tilesetEditor.reload()
+            }
+            else
+            {
+                return false
+            }
+        }
+
+        // save it
+        val stream = ByteArrayInputStream(mapEditor.mapSerializer.serialize(map))
+        bundle.saveResource(map, stream)
+        this.updateResourceView()
+        this.mapEditor.touched = false
+        return true
+    }
 
     companion object
     {

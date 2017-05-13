@@ -63,6 +63,10 @@ object FXUtils
 
     fun showMultipleErrorsAlert(header: String, errors: List<String>)
     {
+        if(errors.isEmpty())
+        {
+            return
+        }
         QuickAlert.create().error().header(header).content("Popraw następujące błedy: \n - " + errors.joinToString("\n - ")).showAndWait()
     }
 

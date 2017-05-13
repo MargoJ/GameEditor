@@ -25,6 +25,7 @@ import pl.margoj.mrf.map.tileset.TilesetFile
 import java.awt.image.BufferedImage
 import java.io.File
 import java.util.ArrayList
+import java.util.Collections
 import java.util.HashMap
 
 private val GREEN_COLLISION = javafx.scene.paint.Color(0.0, 1.0, 0.0, 0.4)
@@ -144,7 +145,7 @@ class MapEditor(editor: MargoJEditor) : AbstractEditor<MapEditor, MargoMap>(edit
             }
             else
             {
-                this.tilesets.put(tilesetFile.name, Tileset(tilesetFile.name, tilesetFile.image))
+                this.tilesets.put(tilesetFile.name, Tileset(tilesetFile.name, tilesetFile.image, Collections.singletonList(tilesetFile)))
             }
         }
 
