@@ -211,5 +211,6 @@ class TilesetEditor(val workspaceController: WorkspaceController)
         }
 
         this.editor.updateResourceView()
+        this.editor.mapEditor.reloadTilesets()
     }
 }

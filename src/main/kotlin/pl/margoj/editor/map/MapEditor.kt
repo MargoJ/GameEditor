@@ -13,6 +13,7 @@ import pl.margoj.editor.gui.objects.WithImageCellFactory
 import pl.margoj.editor.map.cursor.Cursor
 import pl.margoj.editor.map.objects.MapObjectTool
 import pl.margoj.editor.utils.FileUtils
+import pl.margoj.mrf.MargoResource
 import pl.margoj.mrf.map.MargoMap
 import pl.margoj.mrf.map.Point
 import pl.margoj.mrf.map.fragment.MapFragment
@@ -26,6 +27,7 @@ import java.awt.image.BufferedImage
 import java.io.File
 import java.util.ArrayList
 import java.util.Collections
+import java.util.Comparator.comparing
 import java.util.HashMap
 
 private val GREEN_COLLISION = javafx.scene.paint.Color(0.0, 1.0, 0.0, 0.4)
@@ -61,6 +63,11 @@ class MapEditor(editor: MargoJEditor) : AbstractEditor<MapEditor, MargoMap>(edit
     var currentMap: MargoMap? = null
         set(value)
         {
+            if(value != null && !value.validate())
+            {
+                field = null
+                return
+            }
             field = value
             this.resetImageCacheBuffers()
             this.redrawMap()
@@ -106,6 +113,9 @@ class MapEditor(editor: MargoJEditor) : AbstractEditor<MapEditor, MargoMap>(edit
             this.mapCursorBox?.changeSelection(cursor)
         }
 
+    val tilesetListSelected: Boolean get() = !this.objectsListSelected
+    val objectsListSelected: Boolean get() = this.currentLayer == MargoMap.OBJECT_LAYER
+
     var mapSelection: Selection? = null
     var mapCursorBox: MapCursorBox? = null
     var lastTilesetnameSelected: String = AutoTileset.AUTO
@@ -118,18 +128,36 @@ class MapEditor(editor: MargoJEditor) : AbstractEditor<MapEditor, MargoMap>(edit
         this.updateUndoRedoMenu()
     }
 
+
+    private fun addFile(file: File)
+    {
+        val filename = file.name
+
+        if (filename.endsWith(".png"))
+        {
+            val name = filename.substring(0, filename.lastIndexOf('.'))
+            this.tilesetFiles.put(name, TilesetFile(file, name, filename.startsWith("auto-")))
+        }
+    }
+
     fun reloadTilesets()
     {
         this.tilesetFiles.clear()
 
         for (file in File(FileUtils.TILESETS_DIRECTORY).listFiles()!!)
         {
-            val filename = file.name
+            this.addFile(file)
+        }
 
-            if (filename.endsWith(".png"))
+        if (this.editor.currentResourceBundle != null)
+        {
+            val bundle = this.editor.currentResourceBundle!!
+            val tilesets = bundle.getResourcesByCategory(MargoResource.Category.TILESETS)
+
+            for (tileset in tilesets)
             {
-                val name = filename.substring(0, filename.lastIndexOf('.'))
-                this.tilesetFiles.put(name, TilesetFile(file, name, filename.startsWith("auto-")))
+                bundle.loadResource(tileset)
+                this.addFile(bundle.getLocalFile(tileset))
             }
         }
 
@@ -150,6 +178,11 @@ class MapEditor(editor: MargoJEditor) : AbstractEditor<MapEditor, MargoMap>(edit
         }
 
         this.tilesets.put(AutoTileset.AUTO, AutoTileset(AutoTileset.AUTO, autos))
+
+        if(this.tilesetListSelected)
+        {
+            this.selectTilesetsOnLeftMenu();
+        }
     }
 
     fun getTilesetFile(filename: String): TilesetFile?
@@ -394,7 +427,7 @@ class MapEditor(editor: MargoJEditor) : AbstractEditor<MapEditor, MargoMap>(edit
         mapTilesetChoices.add(this.lastTilesetnameSelected)
         leftMenuChoices.value = lastTilesetnameSelected
 
-        tilesetFiles.values.stream().filter { !it.auto }.forEach { mapTilesetChoices.add(it.name) }
+        tilesetFiles.values.stream().filter { !it.auto }.sorted(Comparator.comparing(TilesetFile::name)).forEach { mapTilesetChoices.add(it.name) }
 
         this.workspaceController.objectsList.isVisible = false
     }
