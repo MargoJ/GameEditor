@@ -14,7 +14,6 @@ class MapCursorBox(private val container: HBox, private val editor: MapEditor)
 {
     private val toggleGroup = ToggleGroup()
     private val cursors = LinkedHashMap<Cursor, RadioButton>()
-    private var ignoreNext: Boolean = false
 
     fun addButton(cursor: Cursor, iconName: String, tooltip: String): Boolean
     {
@@ -29,13 +28,11 @@ class MapCursorBox(private val container: HBox, private val editor: MapEditor)
         IconUtils.createBinding(button.graphicProperty(), button.selectedProperty(), "cursor/" + iconName)
         button.tooltip = Tooltip(tooltip)
 
-        button.selectedProperty().addListener { _, _, _ ->
-            if (this.ignoreNext)
+        button.selectedProperty().addListener { _, _, new ->
+            if (!new)
             {
-                this.ignoreNext = false
                 return@addListener
             }
-
             editor.cursor = cursor
         }
 
@@ -55,7 +52,6 @@ class MapCursorBox(private val container: HBox, private val editor: MapEditor)
         val button = this.cursors[cursor]
         if (button != null)
         {
-            this.ignoreNext = true
             this.toggleGroup.selectToggle(button)
         }
     }

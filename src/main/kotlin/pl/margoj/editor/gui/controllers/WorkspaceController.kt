@@ -198,6 +198,8 @@ class WorkspaceController : CustomController
 
     val isMapEditorSelected: Boolean get() = this.tabPane.selectionModel?.selectedItem == this.tabMapEditor
 
+    val fileChooser = FileChooser()
+
     override fun preInit(scene: CustomScene<*>)
     {
         this.scene = scene
@@ -281,6 +283,8 @@ class WorkspaceController : CustomController
         // RESOURCES
         // =========
 
+        fileChooser.extensionFilters.add(FileChooser.ExtensionFilter("Zestaw zasobow MargoJ (*.mrf)", "*.mrf"))
+
         editor.addResourceItems(this.menuBundleSaveToBundle)
 
         btnResourceNew.onAction = EventHandler {
@@ -289,9 +293,7 @@ class WorkspaceController : CustomController
 
 
         btnResourceLoadFromFile.onAction = EventHandler {
-            val fileChooser = FileChooser()
             fileChooser.title = "Wybierz plik"
-            fileChooser.extensionFilters.add(FileChooser.ExtensionFilter("Zestaw zasobow MargoJ (*.mrf)", "*.mrf"))
             val file = fileChooser.showOpenDialog(scene.stage) ?: return@EventHandler
 
             val mount = File(FileUtils.MOUNT_DIRECTORY, "loadmrf_" + System.currentTimeMillis())
@@ -356,9 +358,8 @@ class WorkspaceController : CustomController
         }
 
         btnResourceSaveAs.onAction = EventHandler {
-            val fileChooser = FileChooser()
             fileChooser.title = "Gdzie chcesz zapisać?"
-            fileChooser.extensionFilters.add(FileChooser.ExtensionFilter("Zestaw zasobow MargoJ (*.mrf)", "*.mrf"))
+
             var file = fileChooser.showSaveDialog(this.scene.stage) ?: return@EventHandler
 
             if (!file.name.endsWith(".mrf"))
