@@ -10,7 +10,7 @@ object FileUtils
     val TILESETS_DIRECTORY = PROGRAM_DIRECTORY + "tilesets" + File.separator
     val MOUNT_DIRECTORY = PROGRAM_DIRECTORY + "mounts" + File.separator
     val TEMP_DIRECTORY = PROGRAM_DIRECTORY + "temp" + File.separator
-
+    val LAST_USED_FILE = File(PROGRAM_DIRECTORY, "last-bundles.txt")
 
     fun ensureDirectoryCreationIfAvailable(directory: String)
     {

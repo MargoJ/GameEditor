@@ -65,6 +65,12 @@ class WorkspaceController : CustomController
     lateinit var listResourceView: ListView<Text>
 
     @FXML
+    lateinit var fieldResourceSearch: TextField
+
+    @FXML
+    lateinit var listBundlesLastUsed: ListView<Text>
+
+    @FXML
     lateinit var leftMenuChoices: ChoiceBox<String>
 
     @FXML
@@ -296,17 +302,7 @@ class WorkspaceController : CustomController
             fileChooser.title = "Wybierz plik"
             val file = fileChooser.showOpenDialog(scene.stage) ?: return@EventHandler
 
-            val mount = File(FileUtils.MOUNT_DIRECTORY, "loadmrf_" + System.currentTimeMillis())
-            mount.mkdirs()
-            val bundle = MargoMRFResourceBundle(file, mount)
-            editor.currentResourceBundle = bundle
-            editor.mrfFile = file
-
-            QuickAlert.create()
-                    .information()
-                    .header("Zasób otworzony")
-                    .content("Zasób został otworzony pomyślnie")
-                    .showAndWait()
+            editor.loadMRF(file)
         }
 
         btnResourceSaveToFile.onAction = EventHandler {
@@ -411,7 +407,7 @@ class WorkspaceController : CustomController
                 FileInputStream(file).use { input ->
                     mapEditor.currentMap = mapEditor.mapDeserializer.deserialize(input)
 
-                    if(mapEditor.currentMap == null)
+                    if (mapEditor.currentMap == null)
                     {
                         QuickAlert.create().information().header("Brak wymaganych tilesetow!").showAndWait()
                         return@EventHandler

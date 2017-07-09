@@ -6,22 +6,24 @@ import javafx.scene.control.ButtonType
 import javafx.scene.control.MenuItem
 import javafx.scene.input.KeyCode
 import javafx.scene.text.Text
+import org.apache.commons.lang3.StringUtils
 import pl.margoj.editor.gui.controllers.WorkspaceController
 import pl.margoj.editor.gui.objects.ResourceCellFactory
 import pl.margoj.editor.gui.utils.QuickAlert
 import pl.margoj.editor.map.MapEditor
 import pl.margoj.editor.utils.FileUtils
+import pl.margoj.editor.utils.LastBundlesUtil
 import pl.margoj.mrf.MargoResource
 import pl.margoj.mrf.Paths
 import pl.margoj.mrf.ResourceView
 import pl.margoj.mrf.bundle.MountResourceBundle
+import pl.margoj.mrf.bundle.local.MargoMRFResourceBundle
 import pl.margoj.mrf.map.MargoMap
 import pl.margoj.mrf.map.tileset.TilesetFile
 import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.FileInputStream
 import java.util.Comparator
-import java.util.LinkedList
 import java.util.TreeMap
 import java.util.TreeSet
 
@@ -32,6 +34,8 @@ class MargoJEditor private constructor()
 
     lateinit var tilesetEditor: TilesetEditor
         private set
+
+    private var allItems: List<Text>? = null
 
     val mapEditor: MapEditor = MapEditor(this)
     var mrfFile: File? = null
@@ -58,6 +62,13 @@ class MargoJEditor private constructor()
             this.resourceItems.forEach { it.isDisable = value == null }
             field = value
             this.updateResourceView()
+
+            if (value is MargoMRFResourceBundle)
+            {
+                LastBundlesUtil.addToList(value.mrfFile.absolutePath)
+                this.updateLastBundles()
+            }
+
             tilesetEditor.bundle = value
         }
 
@@ -77,6 +88,10 @@ class MargoJEditor private constructor()
             }
         }
 
+        this.workspaceController.fieldResourceSearch.textProperty().addListener { _, _, _ -> this.updateResourceViewElement() }
+
+        this.updateLastBundles()
+
         this.tilesetEditor = TilesetEditor(workspaceController)
         this.tilesetEditor.init(this)
 
@@ -88,7 +103,8 @@ class MargoJEditor private constructor()
     {
         if (this.currentResourceBundle == null)
         {
-            this.workspaceController.listResourceView.items = FXCollections.singletonObservableList(Text("Nie załadowano żadnego zasobu"))
+            this.allItems = null
+            this.updateResourceViewElement()
             return
         }
 
@@ -105,7 +121,7 @@ class MargoJEditor private constructor()
             views[view.category]!!.add(view)
         }
 
-        val items = FXCollections.observableList(ArrayList<Text>(resources.size + views.size))
+        val items = ArrayList<Text>(resources.size + views.size)
 
         for ((key, value) in views)
         {
@@ -124,8 +140,51 @@ class MargoJEditor private constructor()
             value.mapTo(items) { ResourceText("\t ${it.id} ${if (it.name.isEmpty()) "" else "[${it.name}]"}", it) }
         }
 
+        this.allItems = items
+        this.updateResourceViewElement()
+    }
 
-        this.workspaceController.listResourceView.items = items
+    fun updateResourceViewElement()
+    {
+        if (this.allItems == null)
+        {
+            this.workspaceController.listResourceView.items = FXCollections.singletonObservableList(Text("Nie załadowano żadnego zasobu"))
+            return
+        }
+
+        val visibleItems = FXCollections.observableList(ArrayList<Text>(this.allItems!!.size))
+
+        for (item in this.allItems!!)
+        {
+            if (item !is ResourceText || StringUtils.containsIgnoreCase(item.text, this.workspaceController.fieldResourceSearch.text))
+            {
+                visibleItems.add(item)
+            }
+        }
+
+        this.workspaceController.listResourceView.items = visibleItems
+    }
+
+    fun updateLastBundles()
+    {
+        val bundles = LastBundlesUtil.getLastBundles()
+        val texts = FXCollections.observableList(ArrayList<Text>(bundles.size))
+
+        for (bundle in bundles)
+        {
+            val text = Text(bundle)
+
+            text.setOnMouseClicked { event ->
+                if (event.clickCount == 2)
+                {
+                    this.loadMRF(File(bundle))
+                }
+            }
+
+            texts.add(text)
+        }
+
+        this.workspaceController.listBundlesLastUsed.items = texts
     }
 
     fun addResourceItems(vararg items: MenuItem)
@@ -199,6 +258,23 @@ class MargoJEditor private constructor()
         this.updateResourceView()
     }
 
+
+    fun loadMRF(file: File)
+    {
+        val mount = File(FileUtils.MOUNT_DIRECTORY, "loadmrf_" + System.currentTimeMillis())
+        mount.mkdirs()
+        val bundle = MargoMRFResourceBundle(file, mount)
+        this.currentResourceBundle = bundle
+        this.mrfFile = file
+
+
+        QuickAlert.create()
+                .information()
+                .header("Zasób otworzony")
+                .content("Zasób został otworzony pomyślnie")
+                .showAndWait()
+    }
+
     fun addMapToBundle(map: MargoMap): Boolean
     {
         // check if all tilesets are in bundle
@@ -227,7 +303,7 @@ class MargoJEditor private constructor()
                     .content("Czy chcesz je dodać?\nLista tilesetów: " + missingTilesets.joinToString("\n"))
                     .showAndWait()
 
-            if(result.buttonData == ButtonBar.ButtonData.YES)
+            if (result.buttonData == ButtonBar.ButtonData.YES)
             {
                 for (id in missingTilesets)
                 {
