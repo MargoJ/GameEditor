@@ -9,6 +9,7 @@ import javafx.scene.input.KeyCharacterCombination
 import javafx.scene.input.MouseEvent
 import javafx.scene.layout.HBox
 import javafx.scene.layout.StackPane
+import javafx.scene.layout.VBox
 import javafx.scene.text.Text
 import javafx.stage.FileChooser
 import pl.margoj.editor.EDITOR_DEBUGGING
@@ -202,6 +203,12 @@ class WorkspaceController : CustomController
     @FXML
     lateinit var tilesetButtonUpdateLocal: Button
 
+    @FXML
+    lateinit var paneItemPropertiesContainer: VBox
+
+    @FXML
+    lateinit var fieldSearchItemProperty: TextField
+
     val isMapEditorSelected: Boolean get() = this.tabPane.selectionModel?.selectedItem == this.tabMapEditor
 
     val fileChooser = FileChooser()
@@ -263,7 +270,7 @@ class WorkspaceController : CustomController
                         )
                         .showAndWait()
 
-                when (button.buttonData)
+                when (button?.buttonData)
                 {
                     ButtonBar.ButtonData.YES -> editor.currentResourceBundle!!.saveBundle()
                     ButtonBar.ButtonData.NO -> Platform.exit()
@@ -377,22 +384,14 @@ class WorkspaceController : CustomController
 
         // menu
         this.menuMapNew.onAction = EventHandler {
-            if (this.isMapEditorSelected)
-            {
-                FXUtils.loadDialog("newmap", "Tworzenie nowej mapy", scene.stage)
-            }
-        }
-
-        // menu
-        this.menuMapNew.onAction = EventHandler {
-            if (this.isMapEditorSelected)
+            if (this.isMapEditorSelected && mapEditor.askForSaveIfNecessary())
             {
                 FXUtils.loadDialog("newmap", "Tworzenie nowej mapy", scene.stage)
             }
         }
 
         this.menuMapOpen.onAction = EventHandler {
-            if (!this.isMapEditorSelected)
+            if (!this.isMapEditorSelected || !mapEditor.askForSaveIfNecessary())
             {
                 return@EventHandler
             }
@@ -570,6 +569,18 @@ class WorkspaceController : CustomController
         if (EDITOR_DEBUGGING)
         {
             mapEditor.currentMap = MargoMap("autocreated", "AutoCreated", 15, 15)
+        }
+
+
+        // =========
+        // ITEM EDITOR
+        // =========
+
+        val itemEditor = editor.itemEditor
+        itemEditor.init()
+
+        this.fieldSearchItemProperty.textProperty().addListener { _, _, new ->
+            itemEditor.propertiesRenderer.render(this.paneItemPropertiesContainer, new)
         }
     }
 

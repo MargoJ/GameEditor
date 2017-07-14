@@ -96,7 +96,7 @@ object QuickAlert
             alert.show()
         }
 
-        fun showAndWait(): ButtonType
+        fun showAndWait(): ButtonType?
         {
             return alert.showAndWait().orElse(null)
         }

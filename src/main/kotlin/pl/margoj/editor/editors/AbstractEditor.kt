@@ -134,6 +134,16 @@ abstract class AbstractEditor<E : AbstractEditor<E, T>, T : MargoResource>(prote
         }
     }
 
+    fun askForSaveIfNecessary(): Boolean
+    {
+        if(this.currentEditingObject == null || !this.touched)
+        {
+            return true
+        }
+
+        return this.askForSave()
+    }
+
     fun askForSave(): Boolean
     {
         val button = QuickAlert.create()
@@ -149,7 +159,7 @@ abstract class AbstractEditor<E : AbstractEditor<E, T>, T : MargoResource>(prote
                 )
                 .showAndWait()
 
-        when (button.buttonData)
+        when (button?.buttonData)
         {
             ButtonBar.ButtonData.YES ->
             {

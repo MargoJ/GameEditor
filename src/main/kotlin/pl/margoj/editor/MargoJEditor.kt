@@ -10,6 +10,7 @@ import org.apache.commons.lang3.StringUtils
 import pl.margoj.editor.gui.controllers.WorkspaceController
 import pl.margoj.editor.gui.objects.ResourceCellFactory
 import pl.margoj.editor.gui.utils.QuickAlert
+import pl.margoj.editor.item.ItemEditor
 import pl.margoj.editor.map.MapEditor
 import pl.margoj.editor.utils.FileUtils
 import pl.margoj.editor.utils.LastBundlesUtil
@@ -38,8 +39,9 @@ class MargoJEditor private constructor()
     private var allItems: List<Text>? = null
 
     val mapEditor: MapEditor = MapEditor(this)
+    val itemEditor: ItemEditor = ItemEditor(this)
     var mrfFile: File? = null
-    val editors = listOf(this.mapEditor)
+    val editors = listOf(this.mapEditor, this.itemEditor)
     val resourceItems: MutableList<MenuItem> = ArrayList()
 
     var currentResourceBundle: MountResourceBundle? = null
@@ -246,7 +248,7 @@ class MargoJEditor private constructor()
 
         val type = QuickAlert.create().confirmation().header("Usuwanie zasobu").content("Czy na pewno chcesz usunac zasob ${view.resourceReadableName}").showAndWait()
 
-        if (type.buttonData != ButtonBar.ButtonData.OK_DONE)
+        if (type?.buttonData != ButtonBar.ButtonData.OK_DONE)
         {
             return
         }
@@ -303,7 +305,7 @@ class MargoJEditor private constructor()
                     .content("Czy chcesz je dodać?\nLista tilesetów: " + missingTilesets.joinToString("\n"))
                     .showAndWait()
 
-            if (result.buttonData == ButtonBar.ButtonData.YES)
+            if (result?.buttonData == ButtonBar.ButtonData.YES)
             {
                 for (id in missingTilesets)
                 {

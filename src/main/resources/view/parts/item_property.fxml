@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<HBox prefHeight="50.0" style="-fx-background-color: white; -fx-border-color: black; -fx-border-style: hidden hidden solid hidden;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.margoj.editor.gui.controllers.ItemPropertyController">
+   <children>
+      <Label fx:id="propLabelName" alignment="CENTER" textAlignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="150.0" prefWidth="150.0" text="_" wrapText="true" />
+      <StackPane fx:id="propPaneValueHolder" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS">
+         <HBox.margin>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+         </HBox.margin>
+      </StackPane>
+   </children>
+</HBox>

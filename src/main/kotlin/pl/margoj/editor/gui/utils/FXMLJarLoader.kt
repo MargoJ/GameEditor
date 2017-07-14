@@ -1,12 +1,12 @@
 package pl.margoj.editor.gui.utils
 
 import javafx.fxml.FXMLLoader
-import javafx.scene.layout.Pane
+import javafx.scene.Node
 import pl.margoj.editor.gui.api.CustomController
 
 class FXMLJarLoader(val path: String)
 {
-    lateinit var pane: Pane
+    lateinit var node: Node
         private set
 
     lateinit var controller: CustomController
@@ -16,7 +16,7 @@ class FXMLJarLoader(val path: String)
     {
         val loader = FXMLLoader()
         loader.location = FXMLJarLoader::class.java.classLoader.getResource("view/$path.fxml")
-        this.pane = loader.load()
+        this.node = loader.load()
         this.controller = loader.getController()
     }
 }

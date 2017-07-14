@@ -269,11 +269,6 @@
                                                 <KeyCodeCombination alt="UP" code="E" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                                              </accelerator>
                                           </MenuItem>
-                                          <MenuItem fx:id="menuBundleLoadFromBundle" disable="true" mnemonicParsing="false" text="Załaduj z zestawu">
-                                             <accelerator>
-                                                <KeyCodeCombination alt="UP" code="G" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
-                                             </accelerator>
-                                          </MenuItem>
                                       </items>
                                     </Menu>
                                                 <Menu mnemonicParsing="false" text="Pomoc">
@@ -419,7 +414,132 @@
                 </Tab>
                 <Tab text="Przedmioty">
                     <content>
-                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <VBox prefHeight="691.0" prefWidth="1280.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                           <children>
+                              <MenuBar fx:id="menuItems" VBox.vgrow="NEVER">
+                                 <menus>
+                                    <Menu mnemonicParsing="false" text="Plik">
+                                       <items>
+                                          <MenuItem fx:id="menuItemNew" mnemonicParsing="false" text="Nowa przedmiot">
+                                             <accelerator>
+                                                <KeyCodeCombination alt="UP" code="N" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                                             </accelerator>
+                                          </MenuItem>
+                                          <SeparatorMenuItem mnemonicParsing="false" />
+                                          <MenuItem fx:id="menuItemOpen" mnemonicParsing="false" text="Otwórz">
+                                             <accelerator>
+                                                <KeyCodeCombination alt="UP" code="O" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                                             </accelerator>
+                                          </MenuItem>
+                                          <MenuItem fx:id="menuItemSave" mnemonicParsing="false" text="Zapisz">
+                                             <accelerator>
+                                                <KeyCodeCombination alt="UP" code="S" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                                             </accelerator>
+                                          </MenuItem>
+                                          <MenuItem fx:id="menuItemSaveAs" mnemonicParsing="false" text="Zapisz jako">
+                                             <accelerator>
+                                                <KeyCodeCombination alt="UP" code="S" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
+                                             </accelerator>
+                                          </MenuItem>
+                                       </items>
+                                    </Menu>
+                                    <Menu mnemonicParsing="false" text="Edycja">
+                                       <items>
+                                          <MenuItem fx:id="menuItemUndo" mnemonicParsing="false" text="Cofnij">
+                                             <accelerator>
+                                                <KeyCodeCombination alt="UP" code="Z" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                                             </accelerator>
+                                          </MenuItem>
+                                          <MenuItem fx:id="menuItemRedo" mnemonicParsing="false" text="Powtórz">
+                                             <accelerator>
+                                                <KeyCodeCombination alt="UP" code="Y" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                                             </accelerator>
+                                          </MenuItem>
+                                       </items>
+                                    </Menu>
+                                    <Menu mnemonicParsing="false" text="Zasoby">
+                                       <items>
+                                          <MenuItem fx:id="menuItemSaveToBundle" disable="true" mnemonicParsing="false" text="Dodaj do zestawu">
+                                             <accelerator>
+                                                <KeyCodeCombination alt="UP" code="E" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                                             </accelerator>
+                                          </MenuItem>
+                                       </items>
+                                    </Menu>
+                                 </menus>
+                              </MenuBar>
+                              <GridPane prefHeight="691.0" prefWidth="1280.0" VBox.vgrow="ALWAYS">
+                                <columnConstraints>
+                                    <ColumnConstraints fillWidth="false" hgrow="NEVER" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="300.0" />
+                                  <ColumnConstraints hgrow="ALWAYS" maxWidth="1.7976931348623157E308" />
+                                </columnConstraints>
+                                <rowConstraints>
+                                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS" />
+                                    <RowConstraints />
+                                </rowConstraints>
+                                 <children>
+                                    <AnchorPane prefHeight="200.0" prefWidth="300.0">
+                                       <children>
+                                          <VBox prefHeight="666.0" prefWidth="300.0" spacing="10.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                             <children>
+                                                <ListView fx:id="fieldItemList" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS" />
+                                                <AnchorPane maxWidth="1.7976931348623157E308" prefHeight="30.0" VBox.vgrow="NEVER">
+                                                   <children>
+                                                      <TextField fx:id="fieldSearchItem" prefHeight="25.0" prefWidth="164.0" promptText="Szukaj..." />
+                                                      <Button fx:id="buttonAddNewItem" layoutX="174.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="108.0" text="Dodaj nowy" />
+                                                   </children>
+                                                </AnchorPane>
+                                             </children>
+                                             <padding>
+                                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                             </padding>
+                                          </VBox>
+                                       </children>
+                                    </AnchorPane>
+                                    <AnchorPane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowSpan="2">
+                                       <children>
+                                          <VBox layoutX="10.0" layoutY="10.0" prefHeight="676.0" prefWidth="990.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
+                                             <children>
+                                                <ScrollPane fitToWidth="true" hbarPolicy="NEVER" layoutX="290.0" layoutY="78.0" prefHeight="666.0" prefWidth="980.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0" VBox.vgrow="ALWAYS">
+                                                   <content>
+                                                      <VBox fx:id="paneItemPropertiesContainer" style="-fx-border-color: black; -fx-border-style: solid none none none;" />
+                                                   </content>
+                                                </ScrollPane>
+                                                <HBox>
+                                                   <children>
+                                                      <TextField fx:id="fieldSearchItemProperty" promptText="Szukaj właściwości" HBox.hgrow="ALWAYS">
+                                                         <VBox.margin>
+                                                            <Insets bottom="5.0" top="10.0" />
+                                                         </VBox.margin>
+                                                         <HBox.margin>
+                                                            <Insets bottom="5.0" />
+                                                         </HBox.margin>
+                                                      </TextField>
+                                                      <Button fx:id="buttonDeleteItem" mnemonicParsing="false" prefWidth="130.0" text="Usuń przedmiot" textFill="RED" HBox.hgrow="NEVER">
+                                                         <HBox.margin>
+                                                            <Insets left="5.0" right="5.0" />
+                                                         </HBox.margin>
+                                                         <font>
+                                                            <Font name="System Bold" size="12.0" />
+                                                         </font>
+                                                      </Button>
+                                                      <Button fx:id="buttonQuickSaveItem" mnemonicParsing="false" prefWidth="300.0" text="Zapisz" />
+                                                   </children>
+                                                   <VBox.margin>
+                                                      <Insets top="10.0" />
+                                                   </VBox.margin>
+                                                </HBox>
+                                             </children>
+                                          </VBox>
+                                       </children>
+                                    </AnchorPane>
+                                 </children>
+                              </GridPane>
+                           </children>
+                        </VBox>
+                     </children></AnchorPane>
                     </content>
                 </Tab>
             </tabs>

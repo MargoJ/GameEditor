@@ -2,6 +2,7 @@ package pl.margoj.editor.gui.api
 
 import javafx.scene.Scene
 import javafx.scene.image.Image
+import javafx.scene.layout.Pane
 import javafx.stage.Stage
 import pl.margoj.editor.gui.utils.FXMLJarLoader
 
@@ -23,7 +24,7 @@ abstract class CustomScene<T : CustomController>(val resource: String, val data:
         val loader = FXMLJarLoader(this.resource)
         loader.load()
 
-        this.scene = Scene(loader.pane)
+        this.scene = Scene(loader.node as Pane)
         this.controller = loader.controller as T
 
         this.controller.preInit(this)

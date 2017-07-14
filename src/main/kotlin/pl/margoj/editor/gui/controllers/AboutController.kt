@@ -11,11 +11,11 @@ import java.util.ResourceBundle
 class AboutController : CustomController
 {
     @FXML
-    private val linkGithub: Hyperlink? = null
+    lateinit var linkGithub: Hyperlink
 
     override fun initialize(location: URL, resources: ResourceBundle?)
     {
-        this.linkGithub!!.setOnAction {
+        this.linkGithub.setOnAction {
             Desktop.getDesktop().browse(URI("https://github.com/MargoJ/GameEditor"))
         }
     }
