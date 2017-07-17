@@ -9,7 +9,7 @@ import java.util.ArrayList
 import java.util.Collections
 import java.util.stream.Collectors
 
-class SimpleUndoRedo(changes: List<SimpleUndoRedo.Change>) : UndoRedoAction<MapEditor, MargoMap>
+class SimpleUndoRedo(changes: List<SimpleUndoRedo.Change>) : UndoRedoAction<MapEditor>
 {
     private val changes: List<Change>
 
@@ -19,17 +19,19 @@ class SimpleUndoRedo(changes: List<SimpleUndoRedo.Change>) : UndoRedoAction<MapE
         Collections.reverse(this.changes)
     }
 
-    override fun undo(editor: MapEditor, obj: MargoMap): SimpleUndoRedo
+    override fun undo(editor: MapEditor): SimpleUndoRedo
     {
-        this.changes.forEach { change -> obj.setFragment(change.oldFragment) }
-        this.doRedrawIfNecessary(editor, obj, this.changes, true)
+        val map = editor.currentMap!!
+        this.changes.forEach { change -> map.setFragment(change.oldFragment) }
+        this.doRedrawIfNecessary(editor, map, this.changes, true)
         return this
     }
 
-    override fun redo(editor: MapEditor, obj: MargoMap): SimpleUndoRedo
+    override fun redo(editor: MapEditor): SimpleUndoRedo
     {
-        this.changes.forEach { change -> obj.setFragment(change.newFragment) }
-        this.doRedrawIfNecessary(editor, obj, this.changes, false)
+        val map = editor.currentMap!!
+        this.changes.forEach { change -> map.setFragment(change.newFragment) }
+        this.doRedrawIfNecessary(editor, map, this.changes, false)
         return this
     }
 

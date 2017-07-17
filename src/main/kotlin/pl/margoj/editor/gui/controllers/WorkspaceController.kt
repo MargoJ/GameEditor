@@ -12,7 +12,7 @@ import javafx.scene.layout.StackPane
 import javafx.scene.layout.VBox
 import javafx.scene.text.Text
 import javafx.stage.FileChooser
-import pl.margoj.editor.EDITOR_DEBUGGING
+import org.apache.logging.log4j.LogManager
 import pl.margoj.editor.MargoJEditor
 import pl.margoj.editor.gui.api.CustomController
 import pl.margoj.editor.gui.api.CustomScene
@@ -30,11 +30,10 @@ import pl.margoj.editor.map.objects.GatewayObjectTool
 import pl.margoj.editor.map.objects.RemoveObjectTool
 import pl.margoj.editor.utils.FileUtils
 import pl.margoj.editor.utils.JarUtils
+import pl.margoj.mrf.MargoResource
 import pl.margoj.mrf.bundle.local.MargoMRFResourceBundle
 import pl.margoj.mrf.bundle.local.MountedResourceBundle
-import pl.margoj.mrf.map.MargoMap
 import java.io.File
-import java.io.FileInputStream
 import java.net.URL
 import java.nio.file.Files
 import java.util.ResourceBundle
@@ -49,6 +48,9 @@ class WorkspaceController : CustomController
 
     @FXML
     lateinit var tabMapEditor: Tab
+
+    @FXML
+    lateinit var tabItemEditor: Tab
 
     @FXML
     lateinit var btnResourceNew: Button
@@ -124,9 +126,6 @@ class WorkspaceController : CustomController
 
     @FXML
     lateinit var menuBundleSaveToBundle: MenuItem
-
-    @FXML
-    lateinit var menuBundleLoadFromBundle: MenuItem
 
     @FXML
     lateinit var menuHelpAbout: MenuItem
@@ -209,12 +208,81 @@ class WorkspaceController : CustomController
     @FXML
     lateinit var fieldSearchItemProperty: TextField
 
+    @FXML
+    lateinit var menuItemNew: MenuItem
+
+    @FXML
+    lateinit var menuItemOpen: MenuItem
+
+    @FXML
+    lateinit var menuItemSave: MenuItem
+
+    @FXML
+    lateinit var menuItemSaveAs: MenuItem
+
+    @FXML
+    lateinit var menuItemUndo: MenuItem
+
+    @FXML
+    lateinit var menuItemRedo: MenuItem
+
+    @FXML
+    lateinit var menuItemSaveToBundle: MenuItem
+
+    @FXML
+    lateinit var menuMap: MenuBar
+
+    @FXML
+    lateinit var menuItems: MenuBar
+
+    @FXML
+    lateinit var buttonQuickSaveItem: Button
+
+    @FXML
+    lateinit var buttonDeleteItem: Button
+
+    @FXML
+    lateinit var listItemList: ListView<Text>
+
+    @FXML
+    lateinit var fieldSearchItem: TextField
+
+    @FXML
+    lateinit var buttonAddNewItem: Button
+
+    @FXML
+    lateinit var titledPaneItemEditorTitle: TitledPane
+
+    val mapEditorItems: Array<MenuItem> by lazy(LazyThreadSafetyMode.NONE) {
+        arrayOf(
+                this.menuMapNew, this.menuMapOpen, this.menuMapSave, this.menuMapSaveAs,
+                this.menuEditUndo, this.menuEditRedo, this.menuEditMap, this.menuEditMapMetadata,
+                this.menuViewRedraw,
+                this.menuBundleSaveToBundle,
+                this.menuHelpAbout
+        )
+    }
+
+    val itemEditorItems: Array<MenuItem> by lazy(LazyThreadSafetyMode.NONE) {
+        arrayOf(
+                this.menuItemNew, this.menuItemOpen, this.menuItemSave, this.menuItemSaveAs,
+                this.menuItemUndo, this.menuItemRedo,
+                this.menuItemSaveToBundle
+        )
+    }
+
     val isMapEditorSelected: Boolean get() = this.tabPane.selectionModel?.selectedItem == this.tabMapEditor
+
+    val isItemEditorSelected: Boolean get() = this.tabPane.selectionModel?.selectedItem == this.tabItemEditor
 
     val fileChooser = FileChooser()
 
+    private val logger = LogManager.getLogger(WorkspaceController::class.java)
+
     override fun preInit(scene: CustomScene<*>)
     {
+        logger.trace("preInit()")
+
         this.scene = scene
         val editor = MargoJEditor.INSTANCE
         val mapEditor = editor.mapEditor
@@ -247,10 +315,28 @@ class WorkspaceController : CustomController
         accelerators[KeyCharacterCombination("S")] = Runnable { mapEditor.cursor = ErasingCursor.INSTANCE }
         accelerators[KeyCharacterCombination("D")] = Runnable { mapEditor.cursor = FillingCursor.INSTANCE }
 
+        // multiple accelerators
+        this.scene.scene.onKeyPressed = EventHandler { keyEvent ->
+            fun checkForAcceleratorsWhen(items: Array<MenuItem>, `when`: Boolean)
+            {
+                if (!`when`)
+                {
+                    return
+                }
+
+                items.filter { it.accelerator != null && it.accelerator.match(keyEvent) }.forEach { keyEvent.consume(); it.fire() }
+            }
+
+            checkForAcceleratorsWhen(this.mapEditorItems, this.isMapEditorSelected)
+            checkForAcceleratorsWhen(this.itemEditorItems, this.isItemEditorSelected)
+        }
+
         mapEditor.mapCursorBox = mapCursorBox
 
         scene.stage.onCloseRequest = EventHandler {
             event ->
+            logger.trace("stage.onCloseRequest()")
+
             editor.editors
                     .filter { it.currentEditingObject != null && it.touched && !it.askForSave() }
                     .forEach { event.consume() }
@@ -282,15 +368,16 @@ class WorkspaceController : CustomController
 
     override fun initialize(location: URL?, resources: ResourceBundle?)
     {
-        // global init
-        val editor = MargoJEditor.INSTANCE
-        editor.init(this)
+        logger.trace("initialize()")
 
+        // global init
         FileUtils.ensureDirectoryCreationIfAvailable(FileUtils.PROGRAM_DIRECTORY)
         FileUtils.ensureDirectoryCreationIfAvailable(FileUtils.TILESETS_DIRECTORY)
         FileUtils.ensureDirectoryCreationIfAvailable(FileUtils.MOUNT_DIRECTORY)
         FileUtils.ensureDirectoryCreationIfAvailable(FileUtils.TEMP_DIRECTORY)
 
+        val editor = MargoJEditor.INSTANCE
+        editor.init(this)
 
         // =========
         // RESOURCES
@@ -298,7 +385,11 @@ class WorkspaceController : CustomController
 
         fileChooser.extensionFilters.add(FileChooser.ExtensionFilter("Zestaw zasobow MargoJ (*.mrf)", "*.mrf"))
 
-        editor.addResourceItems(this.menuBundleSaveToBundle)
+        editor.addResourceDisableListener { this.menuBundleSaveToBundle.isDisable = it }
+        editor.addResourceDisableListener { this.menuItemSaveToBundle.isDisable = it }
+        editor.addResourceDisableListener { this.buttonDeleteItem.isDisable = it }
+        editor.addResourceDisableListener { this.buttonAddNewItem.isDisable = it }
+        editor.addResourceDisableListener { this.fieldSearchItem.isDisable = it }
 
         btnResourceNew.onAction = EventHandler {
             editor.currentResourceBundle = MountedResourceBundle(File(FileUtils.MOUNT_DIRECTORY, System.currentTimeMillis().toString()))
@@ -386,7 +477,7 @@ class WorkspaceController : CustomController
         this.menuMapNew.onAction = EventHandler {
             if (this.isMapEditorSelected && mapEditor.askForSaveIfNecessary())
             {
-                FXUtils.loadDialog("newmap", "Tworzenie nowej mapy", scene.stage)
+                FXUtils.loadDialog("map/new", "Tworzenie nowej mapy", scene.stage)
             }
         }
 
@@ -403,20 +494,8 @@ class WorkspaceController : CustomController
 
             try
             {
-                FileInputStream(file).use { input ->
-                    mapEditor.currentMap = mapEditor.mapDeserializer.deserialize(input)
-
-                    if (mapEditor.currentMap == null)
-                    {
-                        QuickAlert.create().information().header("Brak wymaganych tilesetow!").showAndWait()
-                        return@EventHandler
-                    }
-
-                    mapEditor.saveFile = file
-                    mapEditor.save = mapEditor::saveWithDialog
-
-                    QuickAlert.create().information().header("Mapa załadowana pomyślnie").showAndWait()
-                }
+                mapEditor.openFile(file)
+                QuickAlert.create().information().header("Mapa załadowana pomyślnie").showAndWait()
             }
             catch (e: Exception)
             {
@@ -464,7 +543,7 @@ class WorkspaceController : CustomController
                 return@EventHandler
             }
 
-            FXUtils.loadDialog("editmap", "Edycja mapy", scene.stage)
+            FXUtils.loadDialog("map/edit", "Edycja mapy", scene.stage)
         }
 
         this.menuEditMapMetadata.onAction = EventHandler {
@@ -479,7 +558,7 @@ class WorkspaceController : CustomController
                 return@EventHandler
             }
 
-            FXUtils.loadDialog("editmetadata", "Edycja danych mapy", scene.stage, mapEditor.currentMap)
+            FXUtils.loadDialog("map/editmetadata", "Edycja danych mapy", scene.stage, mapEditor.currentMap)
         }
 
         this.menuViewRedraw.onAction = EventHandler {
@@ -519,11 +598,6 @@ class WorkspaceController : CustomController
             }
 
             mapEditor.save = { editor.addMapToBundle(mapEditor.currentMap!!) }
-
-            if (editor.addMapToBundle(map))
-            {
-                QuickAlert.create().information().header("Mapa została dodana do zestawu zasobów!").showAndWait()
-            }
         }
 
 
@@ -566,12 +640,6 @@ class WorkspaceController : CustomController
         mapEditor.mapObjectTools.add(GatewayObjectTool())
         mapEditor.mapObjectTools.add(RemoveObjectTool())
 
-        if (EDITOR_DEBUGGING)
-        {
-            mapEditor.currentMap = MargoMap("autocreated", "AutoCreated", 15, 15)
-        }
-
-
         // =========
         // ITEM EDITOR
         // =========
@@ -582,6 +650,164 @@ class WorkspaceController : CustomController
         this.fieldSearchItemProperty.textProperty().addListener { _, _, new ->
             itemEditor.propertiesRenderer.render(this.paneItemPropertiesContainer, new)
         }
+
+        this.menuItemNew.onAction = EventHandler {
+            if (this.isItemEditorSelected && itemEditor.askForSaveIfNecessary())
+            {
+                FXUtils.loadDialog("item/new", "Tworzenie nowego przedmiotu", this.scene.stage)
+            }
+        }
+
+        this.menuItemOpen.onAction = EventHandler {
+            if (!this.isItemEditorSelected || !itemEditor.askForSaveIfNecessary())
+            {
+                return@EventHandler
+            }
+
+            val fileChooser = FileChooser()
+            fileChooser.title = "Wybierz plik"
+            fileChooser.extensionFilters.add(itemEditor.extensionFilter)
+            val file = fileChooser.showOpenDialog(scene.stage) ?: return@EventHandler
+
+            try
+            {
+                itemEditor.openFile(file)
+                QuickAlert.create().information().header("Przedmiot załadowany pomyślnie").showAndWait()
+            }
+            catch (e: Exception)
+            {
+                QuickAlert.create().exception(e).content("Nie można załadować przedmiotu").showAndWait()
+            }
+        }
+
+        this.menuItemSave.onAction = EventHandler {
+            if (!isItemEditorSelected)
+            {
+                return@EventHandler
+            }
+
+            itemEditor.saveWithDialog()
+        }
+
+        this.menuItemSaveAs.onAction = EventHandler {
+            if (!isItemEditorSelected)
+            {
+                return@EventHandler
+            }
+
+            itemEditor.saveAsWithDialog()
+        }
+
+        this.menuItemUndo.onAction = EventHandler {
+            if (!isItemEditorSelected)
+            {
+                return@EventHandler
+            }
+
+            itemEditor.undo()
+        }
+
+        this.menuItemRedo.onAction = EventHandler {
+            if (!isItemEditorSelected)
+            {
+                return@EventHandler
+            }
+
+            itemEditor.redo()
+        }
+
+        this.menuItemSaveToBundle.onAction = EventHandler {
+            if (!isItemEditorSelected)
+            {
+                return@EventHandler
+            }
+
+            val item = itemEditor.currentItem
+            if (item == null)
+            {
+                QuickAlert.create()
+                        .error()
+                        .header("Nie można dodać przedmiotu")
+                        .content("Brak załadowanego przedmiotu")
+                        .showAndWait()
+                return@EventHandler
+            }
+
+            itemEditor.save = { editor.addItemToBundle(itemEditor.currentItem!!) }
+
+            editor.addItemToBundle(item)
+        }
+
+        this.buttonQuickSaveItem.onAction = EventHandler {
+            itemEditor.save()
+        }
+
+        this.buttonAddNewItem.onAction = EventHandler {
+            if (this.isItemEditorSelected && itemEditor.askForSaveIfNecessary())
+            {
+                val oldItem = itemEditor.currentItem
+
+                val dialog = FXUtils.loadDialog("item/new", "Tworzenie nowego przedmiotu w zestawie zasobów", this.scene.stage)
+                dialog.setOnHiding {
+                    val newItem = itemEditor.currentItem
+                    if (newItem == null || oldItem === newItem)
+                    {
+                        QuickAlert
+                                .create()
+                                .warning()
+                                .header("Operacja przerwana!")
+                                .content("Przedmiot nie zostal utworzony")
+                                .showAndWait()
+                        return@setOnHiding
+                    }
+
+                    itemEditor.save = { editor.addItemToBundle(itemEditor.currentItem!!) }
+
+                    editor.addItemToBundle(newItem)
+                }
+            }
+        }
+
+
+        this.buttonDeleteItem.onAction = EventHandler {
+            val item = itemEditor.currentItem
+            val view = if (item == null) null else editor.currentResourceBundle?.getResource(MargoResource.Category.ITEMS, item.id)
+
+            if (item == null || view == null)
+            {
+                QuickAlert
+                        .create()
+                        .error()
+                        .header("Operacja przerwana!")
+                        .content("Nie mozesz usunac tego przedmiotu z zestawu poniewaz nie znajduje sie on w aktualnym zestawie")
+                        .showAndWait()
+
+                return@EventHandler
+            }
+
+            val result = QuickAlert.create()
+                    .confirmation()
+                    .buttonTypes(ButtonType("Tak", ButtonBar.ButtonData.YES), ButtonType("Nie", ButtonBar.ButtonData.NO))
+                    .header("Czy na pewno chcesz usuna przedmiot z zestawu!")
+                    .content("Przedmiot: ${view.id} [${view.name}]")
+                    .showAndWait()
+
+            if (result?.buttonData != ButtonBar.ButtonData.YES)
+            {
+                return@EventHandler
+            }
+
+            editor.currentResourceBundle!!.deleteResource(view)
+            editor.updateResourceView()
+
+            QuickAlert
+                    .create()
+                    .information()
+                    .header("Przedmiot ${view.id} [{${view.name}] został usunięty poprawnie!")
+                    .showAndWait()
+        }
+
+        this.fieldSearchItem.textProperty().addListener { _, _, _ -> itemEditor.updateItemsView() }
     }
 
 }

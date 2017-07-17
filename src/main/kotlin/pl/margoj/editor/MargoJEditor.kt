@@ -3,10 +3,10 @@ package pl.margoj.editor
 import javafx.collections.FXCollections
 import javafx.scene.control.ButtonBar
 import javafx.scene.control.ButtonType
-import javafx.scene.control.MenuItem
 import javafx.scene.input.KeyCode
 import javafx.scene.text.Text
 import org.apache.commons.lang3.StringUtils
+import org.apache.logging.log4j.LogManager
 import pl.margoj.editor.gui.controllers.WorkspaceController
 import pl.margoj.editor.gui.objects.ResourceCellFactory
 import pl.margoj.editor.gui.utils.QuickAlert
@@ -19,6 +19,7 @@ import pl.margoj.mrf.Paths
 import pl.margoj.mrf.ResourceView
 import pl.margoj.mrf.bundle.MountResourceBundle
 import pl.margoj.mrf.bundle.local.MargoMRFResourceBundle
+import pl.margoj.mrf.item.MargoItem
 import pl.margoj.mrf.map.MargoMap
 import pl.margoj.mrf.map.tileset.TilesetFile
 import java.io.ByteArrayInputStream
@@ -36,17 +37,19 @@ class MargoJEditor private constructor()
     lateinit var tilesetEditor: TilesetEditor
         private set
 
+    private val logger = LogManager.getLogger(MargoJEditor::class.java)
     private var allItems: List<Text>? = null
 
     val mapEditor: MapEditor = MapEditor(this)
     val itemEditor: ItemEditor = ItemEditor(this)
     var mrfFile: File? = null
     val editors = listOf(this.mapEditor, this.itemEditor)
-    val resourceItems: MutableList<MenuItem> = ArrayList()
+    val resourceItems: MutableList<(Boolean) -> Unit> = ArrayList()
 
     var currentResourceBundle: MountResourceBundle? = null
         set(value)
         {
+            logger.trace("currentResourceBundle = $currentResourceBundle")
             val old = field
             if (old != null && old is AutoCloseable)
             {
@@ -61,7 +64,7 @@ class MargoJEditor private constructor()
                 }
             }
 
-            this.resourceItems.forEach { it.isDisable = value == null }
+            this.resourceItems.forEach { it(value == null) }
             field = value
             this.updateResourceView()
 
@@ -76,6 +79,8 @@ class MargoJEditor private constructor()
 
     fun init(workspaceController: WorkspaceController)
     {
+        logger.trace("init($workspaceController)")
+
         this.workspaceController = workspaceController
         this.editors.forEach { it.workspaceController = workspaceController }
 
@@ -103,10 +108,13 @@ class MargoJEditor private constructor()
 
     fun updateResourceView()
     {
+        logger.trace("updateResourceView()")
+
         if (this.currentResourceBundle == null)
         {
             this.allItems = null
             this.updateResourceViewElement()
+            this.itemEditor.updateItemsView()
             return
         }
 
@@ -144,10 +152,14 @@ class MargoJEditor private constructor()
 
         this.allItems = items
         this.updateResourceViewElement()
+
+        this.itemEditor.updateItemsView()
     }
 
     fun updateResourceViewElement()
     {
+        logger.trace("updateResourceViewElement()")
+
         if (this.allItems == null)
         {
             this.workspaceController.listResourceView.items = FXCollections.singletonObservableList(Text("Nie załadowano żadnego zasobu"))
@@ -169,6 +181,8 @@ class MargoJEditor private constructor()
 
     fun updateLastBundles()
     {
+        logger.trace("updateLastBundles()")
+
         val bundles = LastBundlesUtil.getLastBundles()
         val texts = FXCollections.observableList(ArrayList<Text>(bundles.size))
 
@@ -189,13 +203,17 @@ class MargoJEditor private constructor()
         this.workspaceController.listBundlesLastUsed.items = texts
     }
 
-    fun addResourceItems(vararg items: MenuItem)
+    fun addResourceDisableListener(disable: (Boolean) -> Unit)
     {
-        this.resourceItems.addAll(items)
+        logger.trace("addResourceDisableListener($disable)")
+
+        this.resourceItems.add(disable)
     }
 
     fun loadResource(view: ResourceView)
     {
+        logger.trace("loadResource($view)")
+
         if (this.currentResourceBundle == null)
         {
             QuickAlert.create().error().header("Błąd odczytu zestawu zasobów").content("Brak wybranego zestawu").showAndWait()
@@ -211,6 +229,8 @@ class MargoJEditor private constructor()
             QuickAlert.create().error().header("Błąd oczytu zestawu zasobów").content("Nieznany zasób").showAndWait()
             return
         }
+
+        logger.debug("view.category = ${view.category}")
 
         when (view.category)
         {
@@ -234,12 +254,18 @@ class MargoJEditor private constructor()
                 QuickAlert.create().information().header("Załadowano zasób").content("Zasób został załadowany poprawnie").showAndWait()
                 this.workspaceController.tabPane.selectionModel.select(this.workspaceController.tabMapEditor)
             }
+            MargoResource.Category.ITEMS ->
+            {
+                this.itemEditor.loadFromBundle(input)
+            }
             else -> QuickAlert.create().error().header("Błąd oczytu zestawu zasobów").content("Nieznana kategoria").showAndWait()
         }
     }
 
     fun deleteResource(view: ResourceView)
     {
+        logger.trace("deleteResource($view)")
+
         if (this.currentResourceBundle == null)
         {
             QuickAlert.create().error().header("Błąd odczytu zestawu zasobów").content("Brak wybranego zestawu").showAndWait()
@@ -263,6 +289,8 @@ class MargoJEditor private constructor()
 
     fun loadMRF(file: File)
     {
+        logger.trace("loadMRF($file)")
+
         val mount = File(FileUtils.MOUNT_DIRECTORY, "loadmrf_" + System.currentTimeMillis())
         mount.mkdirs()
         val bundle = MargoMRFResourceBundle(file, mount)
@@ -279,6 +307,8 @@ class MargoJEditor private constructor()
 
     fun addMapToBundle(map: MargoMap): Boolean
     {
+        logger.trace("addMapToBundle($map)")
+
         // check if all tilesets are in bundle
         val bundle = this.currentResourceBundle!!
         val tilesetsInBundle = bundle.getResourcesByCategory(MargoResource.Category.TILESETS).map(MargoResource::id)
@@ -325,6 +355,22 @@ class MargoJEditor private constructor()
         bundle.saveResource(map, stream)
         this.updateResourceView()
         this.mapEditor.touched = false
+        QuickAlert.create().information().header("Mapa została dodana do zestawu zasobów!").showAndWait()
+        return true
+    }
+
+    fun addItemToBundle(item: MargoItem): Boolean
+    {
+        logger.trace("addItemToBundle($item)")
+
+        // check if all tilesets are in bundle
+        val bundle = this.currentResourceBundle!!
+        val stream = ByteArrayInputStream(itemEditor.serializer.serialize(item))
+        bundle.saveResource(item, stream)
+        this.updateResourceView()
+        this.itemEditor.touched = false
+        QuickAlert.create().information().header("Przedmiot został dodany do zestawu zasobów!").showAndWait()
+
         return true
     }
 

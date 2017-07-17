@@ -9,19 +9,19 @@ import pl.margoj.mrf.map.fragment.MapFragment
 
 class WholeMapReplacement(private val oldFragments: Array<Array<Array<MapFragment>>>, private val newFragments: Array<Array<Array<MapFragment>>>,
                           private val oldName: String, private val newName: String
-) : UndoRedoAction<MapEditor, MargoMap>
+) : UndoRedoAction<MapEditor>
 {
 
 
-    override fun undo(editor: MapEditor, obj: MargoMap): RedoAction<MapEditor, MargoMap>
+    override fun undo(editor: MapEditor): RedoAction<MapEditor>
     {
-        this.replace(editor, obj, true)
+        this.replace(editor, editor.currentMap!!, true)
         return this
     }
 
-    override fun redo(editor: MapEditor, obj: MargoMap): UndoAction<MapEditor, MargoMap>
+    override fun redo(editor: MapEditor): UndoAction<MapEditor>
     {
-        this.replace(editor, obj, false)
+        this.replace(editor, editor.currentMap!!, false)
         return this
     }
 

@@ -15,7 +15,7 @@ class MapObjectUndoRedo(
         private val old: MapObject<*>?,
         private val new: MapObject<*>?,
         override val actionName: String = "Edycja obiektu"
-) : UndoRedoAction<MapEditor, MargoMap>
+) : UndoRedoAction<MapEditor>
 {
     init
     {
@@ -23,15 +23,15 @@ class MapObjectUndoRedo(
         Validate.isTrue((this.new == null || this.new.position == position), "New position doesn't mach")
     }
 
-    override fun undo(editor: MapEditor, obj: MargoMap): RedoAction<MapEditor, MargoMap>
+    override fun undo(editor: MapEditor): RedoAction<MapEditor>
     {
-        this.swap(editor, obj, old)
+        this.swap(editor, editor.currentMap!!, old)
         return this
     }
 
-    override fun redo(editor: MapEditor, obj: MargoMap): UndoAction<MapEditor, MargoMap>
+    override fun redo(editor: MapEditor): UndoAction<MapEditor>
     {
-        this.swap(editor, obj, new)
+        this.swap(editor, editor.currentMap!!, new)
         return this
     }
 

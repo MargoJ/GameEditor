@@ -11,7 +11,7 @@ class GatewayObjectTool : MapObjectTool<GatewayObject>("Przejście", "icons/obje
 {
     override fun handle(map: MargoMap, point: Point)
     {
-        FXUtils.loadDialog("tool_gateway", "Edytuj przejście", MargoJEditor.INSTANCE.workspaceController.scene.stage, Pair(map, point))
+        FXUtils.loadDialog("map/tool/gateway", "Edytuj przejście", MargoJEditor.INSTANCE.workspaceController.scene.stage, Pair(map, point))
     }
 
     override fun render(g: GraphicsContext, mapObject: GatewayObject)

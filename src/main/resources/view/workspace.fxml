@@ -412,7 +412,7 @@
                         </AnchorPane>
                     </content>
                 </Tab>
-                <Tab text="Przedmioty">
+                <Tab fx:id="tabItemEditor" text="Edytor Przedmiotów">
                     <content>
                         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
@@ -470,73 +470,81 @@
                                     </Menu>
                                  </menus>
                               </MenuBar>
-                              <GridPane prefHeight="691.0" prefWidth="1280.0" VBox.vgrow="ALWAYS">
-                                <columnConstraints>
-                                    <ColumnConstraints fillWidth="false" hgrow="NEVER" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="300.0" />
-                                  <ColumnConstraints hgrow="ALWAYS" maxWidth="1.7976931348623157E308" />
-                                </columnConstraints>
-                                <rowConstraints>
-                                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS" />
-                                    <RowConstraints />
-                                </rowConstraints>
-                                 <children>
-                                    <AnchorPane prefHeight="200.0" prefWidth="300.0">
+                                    <GridPane prefHeight="691.0" prefWidth="1280.0" style="-fx-padding: 0em;" VBox.vgrow="ALWAYS">
+                                      <columnConstraints>
+                                          <ColumnConstraints fillWidth="false" hgrow="NEVER" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="300.0" />
+                                        <ColumnConstraints hgrow="ALWAYS" maxWidth="1.7976931348623157E308" />
+                                      </columnConstraints>
+                                      <rowConstraints>
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS" />
+                                          <RowConstraints />
+                                      </rowConstraints>
                                        <children>
-                                          <VBox prefHeight="666.0" prefWidth="300.0" spacing="10.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                          <AnchorPane prefHeight="200.0" prefWidth="300.0">
                                              <children>
-                                                <ListView fx:id="fieldItemList" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS" />
-                                                <AnchorPane maxWidth="1.7976931348623157E308" prefHeight="30.0" VBox.vgrow="NEVER">
+                                                <VBox prefHeight="666.0" prefWidth="300.0" spacing="10.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                                    <children>
-                                                      <TextField fx:id="fieldSearchItem" prefHeight="25.0" prefWidth="164.0" promptText="Szukaj..." />
-                                                      <Button fx:id="buttonAddNewItem" layoutX="174.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="108.0" text="Dodaj nowy" />
+                                                      <ListView fx:id="listItemList" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS" />
+                                                      <AnchorPane maxWidth="1.7976931348623157E308" prefHeight="30.0" VBox.vgrow="NEVER">
+                                                         <children>
+                                                            <TextField fx:id="fieldSearchItem" disable="true" prefHeight="25.0" prefWidth="164.0" promptText="Szukaj..." />
+                                                            <Button fx:id="buttonAddNewItem" disable="true" layoutX="174.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="108.0" text="Dodaj nowy" />
+                                                         </children>
+                                                      </AnchorPane>
                                                    </children>
-                                                </AnchorPane>
+                                                   <padding>
+                                                      <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                                   </padding>
+                                                </VBox>
                                              </children>
-                                             <padding>
-                                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                                             </padding>
-                                          </VBox>
-                                       </children>
-                                    </AnchorPane>
-                                    <AnchorPane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowSpan="2">
-                                       <children>
-                                          <VBox layoutX="10.0" layoutY="10.0" prefHeight="676.0" prefWidth="990.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
+                                          </AnchorPane>
+                                          <AnchorPane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowSpan="2">
                                              <children>
-                                                <ScrollPane fitToWidth="true" hbarPolicy="NEVER" layoutX="290.0" layoutY="78.0" prefHeight="666.0" prefWidth="980.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0" VBox.vgrow="ALWAYS">
-                                                   <content>
-                                                      <VBox fx:id="paneItemPropertiesContainer" style="-fx-border-color: black; -fx-border-style: solid none none none;" />
-                                                   </content>
-                                                </ScrollPane>
-                                                <HBox>
+                                                <VBox layoutX="10.0" layoutY="10.0" prefHeight="676.0" prefWidth="990.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
                                                    <children>
-                                                      <TextField fx:id="fieldSearchItemProperty" promptText="Szukaj właściwości" HBox.hgrow="ALWAYS">
+                                                <TitledPane fx:id="titledPaneItemEditorTitle" animated="false" collapsible="false" maxHeight="1.7976931348623157E308" text="Edytor przedmiotów" VBox.vgrow="ALWAYS">
+                                                  <content>
+                                                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" style="-fx-padding: 0em;">
+                                                         <children>
+                                                                  <ScrollPane fitToWidth="true" hbarPolicy="NEVER" prefHeight="580.0" prefWidth="958.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                                                     <content>
+                                                                        <VBox fx:id="paneItemPropertiesContainer" style="-fx-border-color: black; -fx-border-style: solid none none none;" />
+                                                                     </content>
+                                                                  </ScrollPane>
+                                                         </children>
+                                                      </AnchorPane>
+                                                  </content>
+                                                </TitledPane>
+                                                      <HBox>
+                                                         <children>
+                                                            <TextField fx:id="fieldSearchItemProperty" promptText="Szukaj właściwości" HBox.hgrow="ALWAYS">
+                                                               <VBox.margin>
+                                                                  <Insets bottom="5.0" top="10.0" />
+                                                               </VBox.margin>
+                                                               <HBox.margin>
+                                                                  <Insets bottom="5.0" />
+                                                               </HBox.margin>
+                                                            </TextField>
+                                                            <Button fx:id="buttonDeleteItem" disable="true" mnemonicParsing="false" prefWidth="130.0" text="Usuń przedmiot" textFill="RED" HBox.hgrow="NEVER">
+                                                               <HBox.margin>
+                                                                  <Insets left="5.0" right="5.0" />
+                                                               </HBox.margin>
+                                                               <font>
+                                                                  <Font name="System Bold" size="12.0" />
+                                                               </font>
+                                                            </Button>
+                                                            <Button fx:id="buttonQuickSaveItem" mnemonicParsing="false" prefWidth="300.0" text="Zapisz" />
+                                                         </children>
                                                          <VBox.margin>
-                                                            <Insets bottom="5.0" top="10.0" />
+                                                            <Insets top="10.0" />
                                                          </VBox.margin>
-                                                         <HBox.margin>
-                                                            <Insets bottom="5.0" />
-                                                         </HBox.margin>
-                                                      </TextField>
-                                                      <Button fx:id="buttonDeleteItem" mnemonicParsing="false" prefWidth="130.0" text="Usuń przedmiot" textFill="RED" HBox.hgrow="NEVER">
-                                                         <HBox.margin>
-                                                            <Insets left="5.0" right="5.0" />
-                                                         </HBox.margin>
-                                                         <font>
-                                                            <Font name="System Bold" size="12.0" />
-                                                         </font>
-                                                      </Button>
-                                                      <Button fx:id="buttonQuickSaveItem" mnemonicParsing="false" prefWidth="300.0" text="Zapisz" />
+                                                      </HBox>
                                                    </children>
-                                                   <VBox.margin>
-                                                      <Insets top="10.0" />
-                                                   </VBox.margin>
-                                                </HBox>
+                                                </VBox>
                                              </children>
-                                          </VBox>
+                                          </AnchorPane>
                                        </children>
-                                    </AnchorPane>
-                                 </children>
-                              </GridPane>
+                                    </GridPane>
                            </children>
                         </VBox>
                      </children></AnchorPane>

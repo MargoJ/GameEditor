@@ -9,19 +9,19 @@ import pl.margoj.mrf.map.MargoMap
 import pl.margoj.mrf.map.Point
 import java.util.ArrayList
 
-class CollisionsUndoRedo(changes: Collection<Point>, private val collisions: Boolean) : UndoRedoAction<MapEditor, MargoMap>
+class CollisionsUndoRedo(changes: Collection<Point>, private val collisions: Boolean) : UndoRedoAction<MapEditor>
 {
     private val changes: List<Point> = ArrayList(changes)
 
-    override fun undo(editor: MapEditor, obj: MargoMap): RedoAction<MapEditor, MargoMap>
+    override fun undo(editor: MapEditor): RedoAction<MapEditor>
     {
-        this.doSwap(editor, obj, !this.collisions)
+        this.doSwap(editor, editor.currentMap!!, !this.collisions)
         return this
     }
 
-    override fun redo(editor: MapEditor, obj: MargoMap): UndoAction<MapEditor, MargoMap>
+    override fun redo(editor: MapEditor): UndoAction<MapEditor>
     {
-        this.doSwap(editor, obj, this.collisions)
+        this.doSwap(editor, editor.currentMap!!, this.collisions)
         return this
     }
 

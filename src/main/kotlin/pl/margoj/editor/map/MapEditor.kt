@@ -6,10 +6,12 @@ import javafx.scene.canvas.Canvas
 import javafx.scene.image.Image
 import javafx.scene.paint.Color
 import javafx.stage.FileChooser
+import org.apache.logging.log4j.LogManager
 import pl.margoj.editor.MargoJEditor
 import pl.margoj.editor.editors.AbstractEditor
 import pl.margoj.editor.gui.objects.MapCursorBox
 import pl.margoj.editor.gui.objects.WithImageCellFactory
+import pl.margoj.editor.gui.utils.QuickAlert
 import pl.margoj.editor.map.cursor.Cursor
 import pl.margoj.editor.map.objects.MapObjectTool
 import pl.margoj.editor.utils.FileUtils
@@ -25,9 +27,9 @@ import pl.margoj.mrf.map.tileset.Tileset
 import pl.margoj.mrf.map.tileset.TilesetFile
 import java.awt.image.BufferedImage
 import java.io.File
+import java.io.FileInputStream
 import java.util.ArrayList
 import java.util.Collections
-import java.util.Comparator.comparing
 import java.util.HashMap
 
 private val GREEN_COLLISION = javafx.scene.paint.Color(0.0, 1.0, 0.0, 0.4)
@@ -35,6 +37,7 @@ private val RED_COLLISION = javafx.scene.paint.Color(1.0, 0.0, 0.0, 0.4)
 
 class MapEditor(editor: MargoJEditor) : AbstractEditor<MapEditor, MargoMap>(editor, FileChooser.ExtensionFilter("Mapa formatu MargoJ (*.mjm)", "*.mjm"), ".mjm")
 {
+    private val logger = LogManager.getLogger(MapEditor::class.java)
     private var mapFragmentBuffer: Array<Array<Array<MapFragment?>?>?>? = null
     private var mapImageBuffer: Array<Array<BufferedImage?>?>? = null
 
@@ -48,6 +51,7 @@ class MapEditor(editor: MargoJEditor) : AbstractEditor<MapEditor, MargoMap>(edit
     var selectedTileset: Tileset? = null
         set(value)
         {
+            logger.trace("selectedTileset = $value")
             field = value
             this.tilesetSelection = RectangleSelection(0, 0, 1, 1)
             this.redrawTileset()
@@ -56,6 +60,8 @@ class MapEditor(editor: MargoJEditor) : AbstractEditor<MapEditor, MargoMap>(edit
     var tilesetSelection: RectangleSelection? = null
         set(value)
         {
+            logger.trace("tilesetSelection = $value")
+
             field = value
             this.redrawTileset()
         }
@@ -63,12 +69,19 @@ class MapEditor(editor: MargoJEditor) : AbstractEditor<MapEditor, MargoMap>(edit
     var currentMap: MargoMap? = null
         set(value)
         {
+            logger.trace("currentMap = $currentMap")
+
             if(value != null && !value.validate())
             {
                 field = null
                 return
             }
-            field = value
+            if(field != value)
+            {
+                field = value
+                this.clearUndoRedoHistory()
+            }
+
             this.resetImageCacheBuffers()
             this.redrawMap()
             this.redrawObjects()
@@ -78,6 +91,8 @@ class MapEditor(editor: MargoJEditor) : AbstractEditor<MapEditor, MargoMap>(edit
     var currentLayer = 0
         set(value)
         {
+            logger.trace("currentLayer = $currentLayer")
+
             val redrawObjects = this.currentLayer == MargoMap.COLLISION_LAYER || value == MargoMap.COLLISION_LAYER ||
                     this.currentLayer == MargoMap.OBJECT_LAYER || value == MargoMap.OBJECT_LAYER
 
@@ -109,6 +124,7 @@ class MapEditor(editor: MargoJEditor) : AbstractEditor<MapEditor, MargoMap>(edit
     var cursor: Cursor = Cursor.DEFAULT
         set(value)
         {
+            logger.trace("cursor = $value")
             field = value
             this.mapCursorBox?.changeSelection(cursor)
         }
@@ -125,12 +141,14 @@ class MapEditor(editor: MargoJEditor) : AbstractEditor<MapEditor, MargoMap>(edit
 
     fun init()
     {
+        logger.trace("init()")
         this.updateUndoRedoMenu()
     }
 
 
-    private fun addFile(file: File)
+    private fun addTilesetFile(file: File)
     {
+        logger.trace("addTilesetFile($file)")
         val filename = file.name
 
         if (filename.endsWith(".png"))
@@ -142,11 +160,13 @@ class MapEditor(editor: MargoJEditor) : AbstractEditor<MapEditor, MargoMap>(edit
 
     fun reloadTilesets()
     {
+        logger.trace("reloadTilesets()")
+
         this.tilesetFiles.clear()
 
         for (file in File(FileUtils.TILESETS_DIRECTORY).listFiles()!!)
         {
-            this.addFile(file)
+            this.addTilesetFile(file)
         }
 
         if (this.editor.currentResourceBundle != null)
@@ -157,7 +177,7 @@ class MapEditor(editor: MargoJEditor) : AbstractEditor<MapEditor, MargoMap>(edit
             for (tileset in tilesets)
             {
                 bundle.loadResource(tileset)
-                this.addFile(bundle.getLocalFile(tileset))
+                this.addTilesetFile(bundle.getLocalFile(tileset))
             }
         }
 
@@ -197,6 +217,7 @@ class MapEditor(editor: MargoJEditor) : AbstractEditor<MapEditor, MargoMap>(edit
 
     private fun resizeMapCanvas(width: Int, height: Int)
     {
+        logger.trace("resizeMapCanvas(width = $width, height = $height)")
         this.workspaceController.mapCanvas.width = (width * 32).toDouble()
         this.workspaceController.mapCanvas.height = (height * 32).toDouble()
         this.workspaceController.objectCanvas.width = (width * 32).toDouble()
@@ -227,12 +248,16 @@ class MapEditor(editor: MargoJEditor) : AbstractEditor<MapEditor, MargoMap>(edit
 
     fun resetImageCacheBuffers()
     {
+        logger.trace("resetImageCacheBuffers()")
+
         this.mapFragmentBuffer = null
         this.mapImageBuffer = null
     }
 
     fun resizeMap(width: Int, height: Int): Boolean
     {
+        logger.trace("resizeMap($width, $height)")
+
         if (this.currentMap == null)
         {
             return false
@@ -246,12 +271,16 @@ class MapEditor(editor: MargoJEditor) : AbstractEditor<MapEditor, MargoMap>(edit
 
     fun updateMapInfo()
     {
+        logger.trace("updateMapInfo()")
+
         this.workspaceController.labelMapId.text = if (this.currentMap == null) "-" else this.currentMap!!.id
         this.workspaceController.labelMapName.text = if (this.currentMap == null) "-" else this.currentMap!!.name
     }
 
     fun redrawMap()
     {
+        logger.trace("redrawMap() - ALL")
+
         if (this.currentMap != null)
         {
             this.resizeMapCanvas(currentMap!!.width, currentMap!!.height)
@@ -262,6 +291,8 @@ class MapEditor(editor: MargoJEditor) : AbstractEditor<MapEditor, MargoMap>(edit
 
     fun redrawObjects()
     {
+        logger.trace("redrawObjects() - ALL")
+
         if (this.currentMap != null)
         {
             this.redrawObjects(RectangleSelection(0, 0, this.currentMap!!.width, this.currentMap!!.height))
@@ -411,6 +442,7 @@ class MapEditor(editor: MargoJEditor) : AbstractEditor<MapEditor, MargoMap>(edit
 
     fun selectTilesetsOnLeftMenu()
     {
+        logger.trace("selectTilesetsOnLeftMenu()")
         val leftMenuChoices = this.workspaceController.leftMenuChoices
 
         leftMenuChoices.onAction = EventHandler {
@@ -434,6 +466,7 @@ class MapEditor(editor: MargoJEditor) : AbstractEditor<MapEditor, MargoMap>(edit
 
     fun selectObjectsOnLeftMenu()
     {
+        logger.trace("selectObjectsOnLeftMenu()")
         val leftMenuChoices = this.workspaceController.leftMenuChoices
         leftMenuChoices.onAction = null
 
@@ -463,9 +496,10 @@ class MapEditor(editor: MargoJEditor) : AbstractEditor<MapEditor, MargoMap>(edit
         return this.mapObjectTools.stream().filter { it.objectType == mapObject.javaClass }.findAny().orElse(null) as? MapObjectTool<T>?
     }
 
-
     fun redrawObject(mapObject: MapObject<*>)
     {
+        logger.trace("redrawObject($mapObject)")
+
         if (this.currentMap == null)
         {
             return
@@ -475,16 +509,33 @@ class MapEditor(editor: MargoJEditor) : AbstractEditor<MapEditor, MargoMap>(edit
         this.redrawObjects(Selection(tool.getPoints(mapObject)))
     }
 
+    override fun openFile(file: File)
+    {
+        logger.trace("openFile($file)")
+
+        FileInputStream(file).use { input ->
+            this.currentMap = this.mapDeserializer.deserialize(input)
+
+            if (this.currentMap == null)
+            {
+                QuickAlert.create().information().header("Brak wymaganych tilesetow!").showAndWait()
+                return
+            }
+
+            this.saveFile = file
+            this.save = this::saveWithDialog
+        }
+    }
+
     override fun doSave(): ByteArray?
     {
+        logger.trace("doSave()")
+
         return if (this.currentMap == null) null else this.mapSerializer.serialize(this.currentMap!!)
     }
 
     override fun updateUndoRedoMenu()
     {
-        this.workspaceController.menuEditUndo.isDisable = !this.canUndo()
-        this.workspaceController.menuEditUndo.text = if (this.canUndo()) "Cofnij: " + this.newestUndo.actionName else "Cofnij"
-        this.workspaceController.menuEditRedo.isDisable = !this.canRedo()
-        this.workspaceController.menuEditRedo.text = if (this.canRedo()) "Powtórz: " + this.newestRedo.actionName else "Powtórz"
+        this.defaultUndoRedoUpdate(this.workspaceController.menuEditUndo, this.workspaceController.menuEditRedo)
     }
 }

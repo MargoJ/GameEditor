@@ -1,35 +1,13 @@
 package pl.margoj.editor.item.renderer
 
-import javafx.scene.control.ComboBox
 import pl.margoj.mrf.item.ItemRarity
 import pl.margoj.mrf.item.properties.RarityProperty
 
-class RarityPropertyRenderer : ItemPropertyRenderer<ItemRarity, RarityProperty, ComboBox<String>>()
+class RarityPropertyRenderer : ListPropertyRenderer<ItemRarity, RarityProperty>()
 {
-    override fun getPropertyType(): Class<RarityProperty> = RarityProperty::class.java
+    override val propertyType: Class<RarityProperty> = RarityProperty::class.java
 
-    override fun createNode(property: RarityProperty): ComboBox<String>
-    {
-        val box = ComboBox<String>()
-        box.maxWidth = Double.POSITIVE_INFINITY
+    override fun getAllValues(): Array<ItemRarity> = ItemRarity.values()
 
-        for (value in ItemRarity.values())
-        {
-            box.items.add(value.localizedName)
-        }
-
-        box.selectionModel.select(0)
-
-        return box
-    }
-
-    override fun update(property: RarityProperty, node: ComboBox<String>, value: ItemRarity)
-    {
-        node.selectionModel.select(value.localizedName)
-    }
-
-    override fun validate(property: RarityProperty, name: String, string: String): Boolean
-    {
-        return true
-    }
+    override fun getStringRepresentation(value: ItemRarity): String = value.localizedName
 }

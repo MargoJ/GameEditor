@@ -12,12 +12,16 @@ import javafx.scene.control.RadioButton
 import javafx.scene.control.ToggleGroup
 import javafx.scene.input.KeyCharacterCombination
 import javafx.scene.input.ScrollEvent
+import org.apache.logging.log4j.LogManager
 import pl.margoj.editor.MargoJEditor
 
 class LayerListener(private val editor: MapEditor, vararg val buttons: RadioButton) : EventHandler<Event>
 {
+    private val logger = LogManager.getLogger(LayerListener::class.java)
+
     fun autoRegister(scene: Scene)
     {
+        logger.trace("autoRegister($scene)")
         val group = ToggleGroup()
 
         for (i in buttons.indices)

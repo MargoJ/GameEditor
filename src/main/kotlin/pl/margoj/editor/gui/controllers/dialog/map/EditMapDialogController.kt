@@ -1,4 +1,4 @@
-package pl.margoj.editor.gui.controllers.dialog
+package pl.margoj.editor.gui.controllers.dialog.map
 
 import java.net.URL
 import java.util.ArrayList

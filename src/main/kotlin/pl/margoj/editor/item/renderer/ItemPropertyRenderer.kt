@@ -6,13 +6,13 @@ import pl.margoj.mrf.item.ItemProperty
 
 abstract class ItemPropertyRenderer<O, P : ItemProperty<O>, N : Node>
 {
-    abstract fun getPropertyType(): Class<P>
+    abstract val propertyType: Class<P>
 
     abstract fun createNode(property: P): N
 
     abstract fun update(property: P, node: N, value: O)
 
-    abstract fun validate(property: P, name: String, string: String): Boolean
+    abstract fun convert(property: P, node: N): O?
 
     protected fun error(message: String)
     {
@@ -23,4 +23,5 @@ abstract class ItemPropertyRenderer<O, P : ItemProperty<O>, N : Node>
                 .content(message)
                 .showAndWait()
     }
+
 }

@@ -6,6 +6,7 @@ import javafx.scene.control.ButtonType
 import javafx.scene.control.TextArea
 import javafx.scene.image.Image
 import org.apache.commons.lang3.exception.ExceptionUtils
+import org.apache.logging.log4j.LogManager
 
 object QuickAlert
 {
@@ -16,10 +17,12 @@ object QuickAlert
 
     class QuickAlertBuilder internal constructor()
     {
+        private val logger = LogManager.getLogger(QuickAlertBuilder::class.java)
         private val alert = Alert(AlertType.NONE)
 
         init
         {
+            logger.trace("init")
             this.icon("icon.png")
         }
 
@@ -93,12 +96,16 @@ object QuickAlert
 
         fun show()
         {
+            logger.trace("show()")
             alert.show()
         }
 
         fun showAndWait(): ButtonType?
         {
-            return alert.showAndWait().orElse(null)
+            logger.trace("showAndWait")
+            val returnValue = alert.showAndWait().orElse(null)
+            logger.debug("showAndWait result: $returnValue")
+            return returnValue
         }
     }
 }

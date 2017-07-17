@@ -4,6 +4,8 @@ import javafx.scene.control.RadioButton
 import javafx.scene.control.ToggleGroup
 import javafx.scene.control.Tooltip
 import javafx.scene.layout.HBox
+import org.apache.logging.log4j.LogManager
+import pl.margoj.editor.gui.listener.LayerListener
 import pl.margoj.editor.gui.utils.IconUtils
 import pl.margoj.editor.map.MapEditor
 import pl.margoj.editor.map.cursor.Cursor
@@ -12,13 +14,16 @@ import java.util.LinkedHashMap
 
 class MapCursorBox(private val container: HBox, private val editor: MapEditor)
 {
+    private val logger = LogManager.getLogger(LayerListener::class.java)
     private val toggleGroup = ToggleGroup()
     private val cursors = LinkedHashMap<Cursor, RadioButton>()
 
     fun addButton(cursor: Cursor, iconName: String, tooltip: String): Boolean
     {
+        logger.trace("addButton(cursor = $cursor, iconName = $iconName, tooltip = $tooltip)")
         if (this.cursors.containsKey(cursor))
         {
+            logger.warn("Duplicate cursor button for $cursor")
             return false
         }
 
@@ -49,6 +54,7 @@ class MapCursorBox(private val container: HBox, private val editor: MapEditor)
 
     fun changeSelection(cursor: Cursor)
     {
+        logger.trace("changeSelection($cursor)")
         val button = this.cursors[cursor]
         if (button != null)
         {

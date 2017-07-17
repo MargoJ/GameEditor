@@ -1,4 +1,4 @@
-package pl.margoj.editor.gui.controllers.dialog
+package pl.margoj.editor.gui.controllers.dialog.map
 
 import javafx.event.EventHandler
 import javafx.fxml.FXML
@@ -15,7 +15,7 @@ import pl.margoj.mrf.map.metadata.welcome.WelcomeMessage
 import java.net.URL
 import java.util.ResourceBundle
 
-class MapMetadataDialog : CustomController
+class MapMetadataDialogController : CustomController
 {
     private val options: Map<MapPvP, String> = hashMapOf(
             Pair(MapPvP.NO_PVP, "PvP wyłączone"),

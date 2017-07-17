@@ -13,21 +13,26 @@ import javafx.scene.Node
 import javafx.scene.control.Control
 import javafx.scene.control.Tooltip
 import javafx.scene.image.ImageView
+import org.apache.logging.log4j.LogManager
 import pl.margoj.editor.EditorApplication
 
 @Suppress("LoopToCallChain")
 object IconUtils
 {
+    private val logger = LogManager.getLogger(IconUtils::javaClass)
     private val iconCache = HashMap<String, ImageView>()
 
     fun createBinding(graphicProperty: ObjectProperty<Node>, selectedProperty: BooleanProperty, layer: String)
     {
+        logger.trace("createBinding(graphicProperty = $graphicProperty, selectedProperty = $selectedProperty, layer = $layer)")
         graphicProperty.value = getIcon(layer, selectedProperty.value!!)
         selectedProperty.addListener { _, _, newValue -> graphicProperty.setValue(getIcon(layer, newValue!!)) }
     }
 
     fun removeDefaultClass(node: Node, defaultClass: String)
     {
+        logger.trace("removeDefaultClass(node = $node, selectedProperty = $defaultClass)")
+
         node.styleClass.remove(defaultClass)
     }
 

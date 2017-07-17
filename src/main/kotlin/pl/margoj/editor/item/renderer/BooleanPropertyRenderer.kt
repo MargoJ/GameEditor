@@ -1,21 +1,26 @@
 package pl.margoj.editor.item.renderer
 
 import javafx.beans.binding.When
+import javafx.event.EventHandler
 import javafx.scene.control.ToggleButton
+import pl.margoj.editor.MargoJEditor
+import pl.margoj.editor.item.PropertyChangeUndoRedo
 import pl.margoj.mrf.item.properties.BooleanProperty
 
 class BooleanPropertyRenderer : ItemPropertyRenderer<Boolean, BooleanProperty, ToggleButton>()
 {
-    override fun getPropertyType(): Class<BooleanProperty>
-    {
-        return BooleanProperty::class.java
-    }
+    override val propertyType: Class<BooleanProperty> = BooleanProperty::class.java
 
     override fun createNode(property: BooleanProperty): ToggleButton
     {
         val button = ToggleButton()
         button.maxWidth = Double.POSITIVE_INFINITY
         button.textProperty().bind(When(button.selectedProperty()).then("Włączone").otherwise("Wyłączone"))
+        button.onAction = EventHandler {
+            val itemEditor = MargoJEditor.INSTANCE.itemEditor
+            itemEditor.currentItem!![property] = button.isSelected
+            itemEditor.addUndoAction(PropertyChangeUndoRedo(property, !button.isSelected, button.isSelected))
+        }
         button.isFocusTraversable = false
         return button
     }
@@ -25,8 +30,8 @@ class BooleanPropertyRenderer : ItemPropertyRenderer<Boolean, BooleanProperty, T
         node.isSelected = value
     }
 
-    override fun validate(property: BooleanProperty, name: String, string: String): Boolean
+    override fun convert(property: BooleanProperty, node: ToggleButton): Boolean?
     {
-        return true
+        return node.isSelected
     }
 }

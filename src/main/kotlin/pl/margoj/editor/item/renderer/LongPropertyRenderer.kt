@@ -3,15 +3,15 @@ package pl.margoj.editor.item.renderer
 import javafx.scene.Node
 import javafx.scene.control.TextField
 import pl.margoj.editor.gui.utils.FXUtils
-import pl.margoj.mrf.item.properties.IntProperty
+import pl.margoj.mrf.item.properties.LongProperty
 
-class IntPropertyRenderer : ItemPropertyRenderer<Int, IntProperty, TextField>()
+class LongPropertyRenderer : ItemPropertyRenderer<Long, LongProperty, TextField>()
 {
     private val changeCache = hashMapOf<Node, String>()
 
-    override val propertyType: Class<IntProperty> = IntProperty::class.java
+    override val propertyType: Class<LongProperty> = LongProperty::class.java
 
-    override fun createNode(property: IntProperty): TextField
+    override fun createNode(property: LongProperty): TextField
     {
         val textField = TextField()
         FXUtils.makeNumberField(textField, true)
@@ -20,7 +20,7 @@ class IntPropertyRenderer : ItemPropertyRenderer<Int, IntProperty, TextField>()
         addPropertyRenderer(textField, changeCache, property, {
             try
             {
-                it.toInt()
+                it.toLong()
             }
             catch (e: NumberFormatException)
             {
@@ -31,18 +31,18 @@ class IntPropertyRenderer : ItemPropertyRenderer<Int, IntProperty, TextField>()
         return textField
     }
 
-    override fun update(property: IntProperty, node: TextField, value: Int)
+    override fun update(property: LongProperty, node: TextField, value: Long)
     {
         node.text = value.toString()
         changeCache[node] = node.text
     }
 
-    override fun convert(property: IntProperty, node: TextField): Int?
+    override fun convert(property: LongProperty, node: TextField): Long?
     {
-        val intValue: Int
+        val longValue: Long
         try
         {
-            intValue = node.text.toInt()
+            longValue = node.text.toLong()
         }
         catch(e: NumberFormatException)
         {
@@ -50,12 +50,12 @@ class IntPropertyRenderer : ItemPropertyRenderer<Int, IntProperty, TextField>()
             return null
         }
 
-        if (intValue < property.minimum)
+        if (longValue < property.minimum)
         {
-            error("Wartość dla '${property.name}' ($intValue) jest mniejsza od wartośći minimalnej (${property.minimum})")
+            error("Wartość dla '${property.name}' ($longValue) jest mniejsza od wartośći minimalnej (${property.minimum})")
             return null
         }
 
-        return intValue
+        return longValue
     }
 }

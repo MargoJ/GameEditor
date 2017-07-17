@@ -8,10 +8,12 @@ import javafx.scene.input.MouseButton
 import javafx.scene.input.MouseEvent
 import javafx.stage.Modality
 import javafx.stage.Stage
+import org.apache.logging.log4j.LogManager
 import pl.margoj.editor.gui.scenes.DialogScene
 
 object FXUtils
 {
+    private val logger = LogManager.getLogger(FXUtils::javaClass)
 
     private fun isValidNumber(str: String, negative: Boolean): Boolean
     {
@@ -47,8 +49,9 @@ object FXUtils
         (alert.dialogPane.scene.window as Stage).icons.setAll(icon)
     }
 
-    fun loadDialog(resource: String, title: String, owner: Stage? = null, data: Any? = null)
+    fun loadDialog(resource: String, title: String, owner: Stage? = null, data: Any? = null): Stage
     {
+        logger.trace("loadDialog(resources = $resource, title = $title, owner = $owner, data = $data)")
         val scene = DialogScene("dialog/" + resource, title, data)
         val stage = Stage()
         if (owner != null)
@@ -59,14 +62,18 @@ object FXUtils
 
         scene.stage = stage
         scene.load()
+        return stage
     }
 
     fun showMultipleErrorsAlert(header: String, errors: List<String>)
     {
+        logger.trace("showMultipleErrorsAlert(header = $header, errors = $errors)")
+
         if(errors.isEmpty())
         {
             return
         }
+
         QuickAlert.create().error().header(header).content("Popraw następujące błedy: \n - " + errors.joinToString("\n - ")).showAndWait()
     }
 

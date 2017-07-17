@@ -4,10 +4,12 @@ import javafx.scene.Scene
 import javafx.scene.image.Image
 import javafx.scene.layout.Pane
 import javafx.stage.Stage
+import org.apache.logging.log4j.LogManager
 import pl.margoj.editor.gui.utils.FXMLJarLoader
 
 abstract class CustomScene<T : CustomController>(val resource: String, val data: Any? = null)
 {
+    private val logger = LogManager.getLogger(this.javaClass)
     private var loaded = false
 
     lateinit var stage: Stage
@@ -21,6 +23,7 @@ abstract class CustomScene<T : CustomController>(val resource: String, val data:
     @Suppress("UNCHECKED_CAST")
     fun load()
     {
+        logger.trace("load()")
         val loader = FXMLJarLoader(this.resource)
         loader.load()
 
@@ -43,12 +46,14 @@ abstract class CustomScene<T : CustomController>(val resource: String, val data:
 
     open fun cleanup()
     {
+        logger.trace("cleanup()")
         this.stage.hide()
         this.loaded = false
     }
 
     fun loadAnother(another: CustomScene<*>)
     {
+        logger.trace("loadAnother($another)")
         this.cleanup()
         another.stage = this.stage
         another.load()
@@ -56,6 +61,7 @@ abstract class CustomScene<T : CustomController>(val resource: String, val data:
 
     protected fun setIcon(iconName: String)
     {
+        logger.trace("setIcon($iconName)")
         stage.icons.setAll(Image(CustomScene::class.java.classLoader.getResourceAsStream(iconName)))
     }
 }

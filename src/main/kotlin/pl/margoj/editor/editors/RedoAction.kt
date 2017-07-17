@@ -1,10 +1,8 @@
 package pl.margoj.editor.editors
 
-import pl.margoj.mrf.MargoResource
-
-interface RedoAction<E : AbstractEditor<E, T>, T : MargoResource>
+interface RedoAction<E : AbstractEditor<E, *>>
 {
-    fun redo(editor: E, obj: T): UndoAction<E, T>
+    fun redo(editor: E): UndoAction<E>
 
     val actionName: String
 }

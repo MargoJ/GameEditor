@@ -1,4 +1,4 @@
-package pl.margoj.editor.gui.controllers.dialog
+package pl.margoj.editor.gui.controllers.dialog.map
 
 import javafx.event.EventHandler
 import javafx.fxml.FXML
@@ -17,7 +17,7 @@ import java.net.URL
 import java.util.ArrayList
 import java.util.ResourceBundle
 
-class GatewayObjectDialog : CustomController
+class GatewayObjectDialogController : CustomController
 {
     @FXML
     lateinit var fieldGatewayTargetX: TextField

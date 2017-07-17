@@ -1,4 +1,4 @@
-package pl.margoj.editor.gui.controllers.dialog
+package pl.margoj.editor.gui.controllers.dialog.map
 
 import java.net.URL
 import java.util.ArrayList
@@ -61,9 +61,9 @@ class NewMapDialogController : CustomController
                 height = Integer.MAX_VALUE
             }
 
-            if (width == 0 || height == 0)
+            if (width < 16 || height < 16)
             {
-                errors.add("Wysokość i szerokosc nie moga wynosic 0")
+                errors.add("Wysokość i szerokosc nie moga byc mniejsze od 16")
             }
 
             if (width > 128 || height > 128)
@@ -100,6 +100,7 @@ class NewMapDialogController : CustomController
             val map = MargoMap(fieldMapId.text, fieldMapName.text, width, height)
             val editor = MargoJEditor.INSTANCE.mapEditor
             editor.currentMap = map
+            editor.saveFile = null
             editor.touch()
 
             scene.stage.close()

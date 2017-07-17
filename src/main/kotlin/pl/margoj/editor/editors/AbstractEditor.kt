@@ -4,8 +4,10 @@ package pl.margoj.editor.editors
 
 import javafx.scene.control.ButtonBar
 import javafx.scene.control.ButtonType
+import javafx.scene.control.MenuItem
 import javafx.stage.FileChooser
 import javafx.stage.FileChooser.ExtensionFilter
+import org.apache.logging.log4j.LogManager
 import pl.margoj.editor.MargoJEditor
 import pl.margoj.editor.gui.controllers.WorkspaceController
 import pl.margoj.editor.gui.utils.QuickAlert
@@ -14,23 +16,30 @@ import java.io.File
 import java.io.FileOutputStream
 import java.util.LinkedList
 
-abstract class AbstractEditor<E : AbstractEditor<E, T>, T : MargoResource>(protected val editor: MargoJEditor, private val extensionFilter: ExtensionFilter, private val extension: String)
+abstract class AbstractEditor<E : AbstractEditor<E, T>, T : MargoResource>(val editor: MargoJEditor, val extensionFilter: ExtensionFilter, val extension: String)
 {
-    private val undoActions = LinkedList<UndoAction<E, T>>()
-    private val redoActions = LinkedList<RedoAction<E, T>>()
-    var touched: Boolean = false
+    private val logger = LogManager.getLogger(this.javaClass)
+    private val undoActions = LinkedList<UndoAction<E>>()
+    private val redoActions = LinkedList<RedoAction<E>>()
     var undoLimit = 50
     var saveFile: File? = null
     var save: () -> Boolean = this::saveWithDialog
     lateinit var workspaceController: WorkspaceController
+    var touched: Boolean = false
+        set(value)
+        {
+            field = value
+            logger.trace("this.touched = $value")
+        }
 
     fun touch()
     {
         this.touched = true
     }
 
-    fun addUndoAction(action: UndoAction<E, T>)
+    fun addUndoAction(action: UndoAction<E>)
     {
+        logger.debug("New undo action $action")
         while (this.undoActions.size >= this.undoLimit)
         {
             this.undoActions.removeFirst()
@@ -41,10 +50,10 @@ abstract class AbstractEditor<E : AbstractEditor<E, T>, T : MargoResource>(prote
         this.updateUndoRedoMenu()
     }
 
-    val newestUndo: UndoAction<E, T>
+    val newestUndo: UndoAction<E>
         get() = this.undoActions.last
 
-    val newestRedo: RedoAction<E, T>
+    val newestRedo: RedoAction<E>
         get() = this.redoActions.last
 
     fun canUndo(): Boolean
@@ -64,7 +73,8 @@ abstract class AbstractEditor<E : AbstractEditor<E, T>, T : MargoResource>(prote
             this.updateUndoRedoMenu()
             return false
         }
-        val redo = this.newestUndo.undo(this as E, this.currentEditingObject!!)
+        logger.debug("Performing undo ${this.newestUndo}")
+        val redo = this.newestUndo.undo(this as E)
         this.undoActions.removeLast()
         this.redoActions.add(redo)
 
@@ -79,7 +89,10 @@ abstract class AbstractEditor<E : AbstractEditor<E, T>, T : MargoResource>(prote
             this.updateUndoRedoMenu()
             return false
         }
-        val undo = this.newestRedo.redo(this as E, this.currentEditingObject!!)
+
+        logger.debug("Performing redo ${this.newestRedo}")
+
+        val undo = this.newestRedo.redo(this as E)
         this.redoActions.removeLast()
         this.undoActions.add(undo)
 
@@ -87,8 +100,17 @@ abstract class AbstractEditor<E : AbstractEditor<E, T>, T : MargoResource>(prote
         return true
     }
 
+    fun clearUndoRedoHistory()
+    {
+        logger.trace("clearUndoRedoHistory()")
+        this.undoActions.clear()
+        this.redoActions.clear()
+        this.updateUndoRedoMenu()
+    }
+
     fun saveAsWithDialog(): Boolean
     {
+        logger.trace("saveAsWithDialog()")
         if (this.currentEditingObject == null)
         {
             QuickAlert.create().error().header("Nie można zapisać").content("Nie wybrano żadnego obiektu do zapisu").showAndWait()
@@ -114,6 +136,7 @@ abstract class AbstractEditor<E : AbstractEditor<E, T>, T : MargoResource>(prote
 
     fun saveWithDialog(): Boolean
     {
+        logger.trace("saveWithDialog()")
         if (this.saveFile == null)
         {
             return this.saveAsWithDialog()
@@ -121,7 +144,9 @@ abstract class AbstractEditor<E : AbstractEditor<E, T>, T : MargoResource>(prote
 
         try
         {
-            FileOutputStream(this.saveFile!!).use { out -> out.write(this.doSave()) }
+            val bytes = this.doSave() ?: return false
+
+            FileOutputStream(this.saveFile!!).use { out -> out.write(bytes) }
 
             this.touched = false
             QuickAlert.create().information().header("Plik zapisany pomyślnie").showAndWait()
@@ -136,7 +161,8 @@ abstract class AbstractEditor<E : AbstractEditor<E, T>, T : MargoResource>(prote
 
     fun askForSaveIfNecessary(): Boolean
     {
-        if(this.currentEditingObject == null || !this.touched)
+        logger.trace("askForSaveIfNecessary()")
+        if (this.currentEditingObject == null || !this.touched)
         {
             return true
         }
@@ -146,6 +172,8 @@ abstract class AbstractEditor<E : AbstractEditor<E, T>, T : MargoResource>(prote
 
     fun askForSave(): Boolean
     {
+        logger.trace("askForSave()")
+
         val button = QuickAlert.create()
                 .confirmation()
                 .buttonTypes(
@@ -170,7 +198,17 @@ abstract class AbstractEditor<E : AbstractEditor<E, T>, T : MargoResource>(prote
         }
     }
 
+    abstract fun openFile(file: File)
+
     protected abstract fun doSave(): ByteArray?
+
+    protected fun defaultUndoRedoUpdate(undo: MenuItem, redo: MenuItem)
+    {
+        undo.isDisable = !this.canUndo()
+        undo.text = if (this.canUndo()) "Cofnij: " + this.newestUndo.actionName else "Cofnij"
+        redo.isDisable = !this.canRedo()
+        redo.text = if (this.canRedo()) "Powtórz: " + this.newestRedo.actionName else "Powtórz"
+    }
 
     abstract fun updateUndoRedoMenu()
 
