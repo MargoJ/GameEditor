@@ -604,17 +604,17 @@ class WorkspaceController : CustomController
         this.menuHelpAbout.onAction = EventHandler { FXUtils.loadDialog("about", "O programie", scene.stage) }
 
         // copy default tilesets
-        val defaults = JarUtils.getFilesInJar("/default-tiles")
-        val tilesetDirectory = File(FileUtils.TILESETS_DIRECTORY)
-
-        for (path in defaults)
-        {
-            val tilesetFile = File(tilesetDirectory, path.toString())
-            if (!tilesetFile.exists())
-            {
-                Files.copy(WorkspaceController::class.java.getResourceAsStream("/default-tiles/" + path.toString()), tilesetFile.toPath())
-            }
-        }
+//        val defaults = JarUtils.getFilesInJar("/default-tiles")
+//        val tilesetDirectory = File(FileUtils.TILESETS_DIRECTORY)
+//
+//        for (path in defaults)
+//        {
+//            val tilesetFile = File(tilesetDirectory, path.toString())
+//            if (!tilesetFile.exists())
+//            {
+//                Files.copy(WorkspaceController::class.java.getResourceAsStream("/default-tiles/" + path.toString()), tilesetFile.toPath())
+//            }
+//        }
 
         mapEditor.reloadTilesets()
 
