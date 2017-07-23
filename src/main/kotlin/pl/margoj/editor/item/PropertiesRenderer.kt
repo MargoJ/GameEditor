@@ -62,6 +62,7 @@ class PropertiesRenderer(val renderers: Collection<ItemPropertyRenderer<*, *, *>
         val DEFAULT_PROPERTIES_RENDERERS = mutableListOf<ItemPropertyRenderer<*, *, *>>(
                 StringPropertyRenderer(),
                 IntPropertyRenderer(),
+                DoublePropertyRenderer(),
                 LongPropertyRenderer(),
                 BooleanPropertyRenderer(),
                 CategoryPropertyRenderer(),

@@ -22,7 +22,31 @@ object FXUtils
         {
             return false
         }
-        return (0..str.length - 1).none { !(chars[it] == '-' && it == 0 && negative) && !Character.isDigit(chars[it]) }
+        var dot = false
+        for (i in 0..str.length - 1)
+        {
+            if (chars[i] == '-' && (i != 0 || !negative))
+            {
+                return false
+            }
+            else if(chars[i] == '.')
+            {
+                if (dot)
+                {
+                    return false
+                }
+                else
+                {
+                    dot = true
+                }
+            }
+            else if(!Character.isDigit(chars[i]))
+            {
+                return false
+            }
+        }
+
+        return true
     }
 
     fun makeNumberField(field: TextField, negative: Boolean)
@@ -33,7 +57,7 @@ object FXUtils
         }
 
         field.textProperty().addListener { _, oldValue, newValue ->
-            if(newValue.isEmpty())
+            if (newValue.isEmpty())
             {
                 field.text = newValue
             }
@@ -69,7 +93,7 @@ object FXUtils
     {
         logger.trace("showMultipleErrorsAlert(header = $header, errors = $errors)")
 
-        if(errors.isEmpty())
+        if (errors.isEmpty())
         {
             return
         }
