@@ -598,6 +598,7 @@ class WorkspaceController : CustomController
             }
 
             mapEditor.save = { editor.addMapToBundle(mapEditor.currentMap!!) }
+            mapEditor.save()
         }
 
 
