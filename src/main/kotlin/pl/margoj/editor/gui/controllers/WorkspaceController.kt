@@ -27,6 +27,7 @@ import pl.margoj.editor.map.cursor.ErasingCursor
 import pl.margoj.editor.map.cursor.FillingCursor
 import pl.margoj.editor.map.cursor.SingleElementCursor
 import pl.margoj.editor.map.objects.GatewayObjectTool
+import pl.margoj.editor.map.objects.MapSpawnObjectTool
 import pl.margoj.editor.map.objects.RemoveObjectTool
 import pl.margoj.editor.utils.FileUtils
 import pl.margoj.editor.utils.JarUtils
@@ -639,6 +640,7 @@ class WorkspaceController : CustomController
 
         // init objects
         mapEditor.mapObjectTools.add(GatewayObjectTool())
+        mapEditor.mapObjectTools.add(MapSpawnObjectTool())
         mapEditor.mapObjectTools.add(RemoveObjectTool())
 
         // =========
