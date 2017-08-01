@@ -12,6 +12,7 @@ import pl.margoj.editor.gui.objects.ResourceCellFactory
 import pl.margoj.editor.gui.utils.QuickAlert
 import pl.margoj.editor.item.ItemEditor
 import pl.margoj.editor.map.MapEditor
+import pl.margoj.editor.npc.NpcEditor
 import pl.margoj.editor.utils.FileUtils
 import pl.margoj.editor.utils.LastBundlesUtil
 import pl.margoj.mrf.MargoResource
@@ -22,6 +23,7 @@ import pl.margoj.mrf.bundle.local.MargoMRFResourceBundle
 import pl.margoj.mrf.item.MargoItem
 import pl.margoj.mrf.map.MargoMap
 import pl.margoj.mrf.map.tileset.TilesetFile
+import pl.margoj.mrf.npc.NpcScript
 import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.FileInputStream
@@ -42,8 +44,9 @@ class MargoJEditor private constructor()
 
     val mapEditor: MapEditor = MapEditor(this)
     val itemEditor: ItemEditor = ItemEditor(this)
+    val npcEditor: NpcEditor = NpcEditor(this)
     var mrfFile: File? = null
-    val editors = listOf(this.mapEditor, this.itemEditor)
+    val editors = listOf(this.mapEditor, this.itemEditor, this.npcEditor)
     val resourceItems: MutableList<(Boolean) -> Unit> = ArrayList()
 
     var currentResourceBundle: MountResourceBundle? = null
@@ -154,6 +157,7 @@ class MargoJEditor private constructor()
         this.updateResourceViewElement()
 
         this.itemEditor.updateItemsView()
+        this.npcEditor.updateNpcsView()
     }
 
     fun updateResourceViewElement()
@@ -257,6 +261,10 @@ class MargoJEditor private constructor()
             MargoResource.Category.ITEMS ->
             {
                 this.itemEditor.loadFromBundle(input)
+            }
+            MargoResource.Category.NPC_SCRIPTS ->
+            {
+                this.npcEditor.loadFromBundle(view.id, input)
             }
             else -> QuickAlert.create().error().header("Błąd oczytu zestawu zasobów").content("Nieznana kategoria").showAndWait()
         }
@@ -370,6 +378,21 @@ class MargoJEditor private constructor()
         this.updateResourceView()
         this.itemEditor.touched = false
         QuickAlert.create().information().header("Przedmiot został dodany do zestawu zasobów!").showAndWait()
+
+        return true
+    }
+
+    fun addNpcScriptToBundle(script: NpcScript): Boolean
+    {
+        logger.trace("addNpcScriptToBundle($script)")
+
+        // check if all tilesets are in bundle
+        val bundle = this.currentResourceBundle!!
+        val stream = ByteArrayInputStream(npcEditor.serializer.serialize(script))
+        bundle.saveResource(script, stream)
+        this.updateResourceView()
+        this.npcEditor.touched = false
+        QuickAlert.create().information().header("Skrypt został dodany do zestawu zasobów!").showAndWait()
 
         return true
     }

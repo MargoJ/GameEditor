@@ -1,18 +1,23 @@
 package pl.margoj.editor.gui.controllers
 
 import javafx.application.Platform
+import javafx.concurrent.Task
 import javafx.event.EventHandler
 import javafx.fxml.FXML
 import javafx.scene.canvas.Canvas
 import javafx.scene.control.*
-import javafx.scene.input.KeyCharacterCombination
-import javafx.scene.input.MouseEvent
+import javafx.scene.input.*
+import javafx.scene.layout.AnchorPane
 import javafx.scene.layout.HBox
 import javafx.scene.layout.StackPane
 import javafx.scene.layout.VBox
 import javafx.scene.text.Text
 import javafx.stage.FileChooser
 import org.apache.logging.log4j.LogManager
+import org.fxmisc.flowless.VirtualizedScrollPane
+import org.fxmisc.richtext.CodeArea
+import org.fxmisc.richtext.LineNumberFactory
+import org.fxmisc.richtext.model.StyleSpans
 import pl.margoj.editor.MargoJEditor
 import pl.margoj.editor.gui.api.CustomController
 import pl.margoj.editor.gui.api.CustomScene
@@ -29,15 +34,19 @@ import pl.margoj.editor.map.cursor.SingleElementCursor
 import pl.margoj.editor.map.objects.GatewayObjectTool
 import pl.margoj.editor.map.objects.MapSpawnObjectTool
 import pl.margoj.editor.map.objects.RemoveObjectTool
+import pl.margoj.editor.npc.NpcEditorTextChangeUndoRedo
 import pl.margoj.editor.utils.FileUtils
-import pl.margoj.editor.utils.JarUtils
 import pl.margoj.mrf.MargoResource
 import pl.margoj.mrf.bundle.local.MargoMRFResourceBundle
 import pl.margoj.mrf.bundle.local.MountedResourceBundle
 import java.io.File
 import java.net.URL
-import java.nio.file.Files
+import java.util.Optional
 import java.util.ResourceBundle
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+import kotlin.concurrent.withLock
+
 
 class WorkspaceController : CustomController
 {
@@ -52,6 +61,9 @@ class WorkspaceController : CustomController
 
     @FXML
     lateinit var tabItemEditor: Tab
+
+    @FXML
+    lateinit var tabNpcEditor: Tab
 
     @FXML
     lateinit var btnResourceNew: Button
@@ -254,6 +266,51 @@ class WorkspaceController : CustomController
     @FXML
     lateinit var titledPaneItemEditorTitle: TitledPane
 
+    @FXML
+    lateinit var menuNpcs: MenuBar
+
+    @FXML
+    lateinit var menuNpcNew: MenuItem
+
+    @FXML
+    lateinit var menuNpcOpen: MenuItem
+
+    @FXML
+    lateinit var menuNpcSave: MenuItem
+
+    @FXML
+    lateinit var menuNpcSaveAs: MenuItem
+
+    @FXML
+    lateinit var menuNpcUndo: MenuItem
+
+    @FXML
+    lateinit var menuNpcRedo: MenuItem
+
+    @FXML
+    lateinit var menuNpcSaveToBundle: MenuItem
+
+    @FXML
+    lateinit var listNpcList: ListView<Text>
+
+    @FXML
+    lateinit var fieldSearchNpc: TextField
+
+    @FXML
+    lateinit var buttonAddNewNpc: Button
+
+    @FXML
+    lateinit var buttonDeleteNpc: Button
+
+    @FXML
+    lateinit var buttonQuickSaveNpc: Button
+
+    @FXML
+    lateinit var npcEditorHolder: AnchorPane
+
+    @FXML
+    lateinit var titledPaneNpcEditorTitle: TitledPane
+
     val mapEditorItems: Array<MenuItem> by lazy(LazyThreadSafetyMode.NONE) {
         arrayOf(
                 this.menuMapNew, this.menuMapOpen, this.menuMapSave, this.menuMapSaveAs,
@@ -272,9 +329,19 @@ class WorkspaceController : CustomController
         )
     }
 
+    val npcEditorItems: Array<MenuItem> by lazy(LazyThreadSafetyMode.NONE) {
+        arrayOf(
+                this.menuNpcNew, this.menuNpcOpen, this.menuNpcSave, this.menuNpcSaveAs,
+                this.menuNpcUndo, this.menuNpcRedo,
+                this.menuNpcSaveToBundle
+        )
+    }
+
     val isMapEditorSelected: Boolean get() = this.tabPane.selectionModel?.selectedItem == this.tabMapEditor
 
     val isItemEditorSelected: Boolean get() = this.tabPane.selectionModel?.selectedItem == this.tabItemEditor
+
+    val isNpcEditorSelected: Boolean get() = this.tabPane.selectionModel?.selectedItem == this.tabNpcEditor
 
     val fileChooser = FileChooser()
 
@@ -330,6 +397,7 @@ class WorkspaceController : CustomController
 
             checkForAcceleratorsWhen(this.mapEditorItems, this.isMapEditorSelected)
             checkForAcceleratorsWhen(this.itemEditorItems, this.isItemEditorSelected)
+            checkForAcceleratorsWhen(this.npcEditorItems, this.isNpcEditorSelected)
         }
 
         mapEditor.mapCursorBox = mapCursorBox
@@ -365,6 +433,8 @@ class WorkspaceController : CustomController
                 }
             }
         }
+
+        scene.scene.stylesheets.add(WorkspaceController::class.java.classLoader.getResource("css/syntax.css").toExternalForm())
     }
 
     override fun initialize(location: URL?, resources: ResourceBundle?)
@@ -391,6 +461,10 @@ class WorkspaceController : CustomController
         editor.addResourceDisableListener { this.buttonDeleteItem.isDisable = it }
         editor.addResourceDisableListener { this.buttonAddNewItem.isDisable = it }
         editor.addResourceDisableListener { this.fieldSearchItem.isDisable = it }
+        editor.addResourceDisableListener { this.menuNpcSaveToBundle.isDisable = it }
+        editor.addResourceDisableListener { this.buttonDeleteNpc.isDisable = it }
+        editor.addResourceDisableListener { this.buttonAddNewNpc.isDisable = it }
+        editor.addResourceDisableListener { this.fieldSearchNpc.isDisable = it }
 
         btnResourceNew.onAction = EventHandler {
             editor.currentResourceBundle = MountedResourceBundle(File(FileUtils.MOUNT_DIRECTORY, System.currentTimeMillis().toString()))
@@ -811,6 +885,274 @@ class WorkspaceController : CustomController
         }
 
         this.fieldSearchItem.textProperty().addListener { _, _, _ -> itemEditor.updateItemsView() }
+
+        // ===================
+        // NPC EDITOR
+        // ===================
+
+        val npcEditor = editor.npcEditor
+        val codeArea = CodeArea()
+        npcEditor.init(codeArea)
+
+        val scrollPane = VirtualizedScrollPane(codeArea)
+        this.npcEditorHolder.children.setAll(scrollPane)
+
+        AnchorPane.setTopAnchor(scrollPane, 0.0)
+        AnchorPane.setLeftAnchor(scrollPane, 0.0)
+        AnchorPane.setBottomAnchor(scrollPane, 0.0)
+        AnchorPane.setRightAnchor(scrollPane, 0.0)
+
+        val checkThread = object : Thread()
+        {
+            override fun run()
+            {
+                while (true)
+                {
+                    if (npcEditor.previousText == null)
+                    {
+                        npcEditor.previousText = codeArea.text
+                    }
+                    else if (npcEditor.lastModified + 200L < System.currentTimeMillis() && npcEditor.previousText != codeArea.text)
+                    {
+                        npcEditor.lock.withLock {
+                            val previous = npcEditor.previousText!!
+                            val current = codeArea.text
+                            npcEditor.previousText = current
+                            npcEditor.lastModified = System.currentTimeMillis()
+
+                            Platform.runLater {
+                                npcEditor.addUndoAction(NpcEditorTextChangeUndoRedo(npcEditor, previous, current))
+                            }
+                        }
+                    }
+
+                    Thread.sleep(100)
+                }
+            }
+        }
+        checkThread.isDaemon = true
+        checkThread.start()
+
+        codeArea.undoManager.close()
+        codeArea.textProperty().addListener { observable, _, new ->
+            npcEditor.lastModified = System.currentTimeMillis()
+            npcEditor.updateContent(new)
+        }
+
+        codeArea.paragraphGraphicFactory = LineNumberFactory.get(codeArea)
+
+        codeArea.richChanges()
+                .filter { ch -> ch.inserted != ch.removed }
+                .supplyTask { this.computeHighlightingAsync(codeArea) }
+                .await()
+                .filterMap {
+                    if (it.isSuccess)
+                    {
+                        Optional.of(it.get())
+                    }
+                    else
+                    {
+                        it.failure.printStackTrace()
+                        Optional.empty()
+                    }
+                }
+                .subscribe {
+                    try
+                    {
+                        codeArea.setStyleSpans(0, it)
+                    }
+                    catch (e: IllegalStateException)
+                    {
+                        // ignored, caused by style being changed when the code changes
+                    }
+                }
+
+        val ctrlZ = KeyCodeCombination(KeyCode.Z, KeyCombination.SHORTCUT_DOWN)
+        val ctrlY = KeyCodeCombination(KeyCode.Y, KeyCombination.SHORTCUT_DOWN)
+
+        codeArea.onKeyPressed = EventHandler {
+            if(ctrlZ.match(it))
+            {
+                npcEditor.undo()
+            }
+            if(ctrlY.match(it))
+            {
+                npcEditor.redo()
+            }
+        }
+
+        this.menuNpcNew.onAction = EventHandler {
+            if (this.isNpcEditorSelected && npcEditor.askForSaveIfNecessary())
+            {
+                FXUtils.loadDialog("npc/new", "Tworzenie nowego skryptu NPC", this.scene.stage)
+            }
+        }
+
+        this.menuNpcOpen.onAction = EventHandler {
+            if (!this.isNpcEditorSelected || !npcEditor.askForSaveIfNecessary())
+            {
+                return@EventHandler
+            }
+
+            val fileChooser = FileChooser()
+            fileChooser.title = "Wybierz plik"
+            fileChooser.extensionFilters.add(npcEditor.extensionFilter)
+            val file = fileChooser.showOpenDialog(scene.stage) ?: return@EventHandler
+
+            try
+            {
+                npcEditor.openFile(file)
+                QuickAlert.create().information().header("Skrypt załadowany pomyślnie").showAndWait()
+            }
+            catch (e: Exception)
+            {
+                QuickAlert.create().exception(e).content("Nie można załadować skryptu").showAndWait()
+            }
+        }
+
+        this.menuNpcSave.onAction = EventHandler {
+            if (!isNpcEditorSelected)
+            {
+                return@EventHandler
+            }
+
+            npcEditor.saveWithDialog()
+        }
+
+        this.menuNpcSaveAs.onAction = EventHandler {
+            if (!isNpcEditorSelected)
+            {
+                return@EventHandler
+            }
+
+            npcEditor.saveAsWithDialog()
+        }
+
+        this.menuNpcUndo.onAction = EventHandler {
+            if (isNpcEditorSelected)
+            {
+                npcEditor.undo()
+            }
+        }
+
+        this.menuNpcRedo.onAction = EventHandler {
+            if (isNpcEditorSelected)
+            {
+                npcEditor.redo()
+            }
+        }
+
+        this.menuNpcSaveToBundle.onAction = EventHandler {
+            if (!isNpcEditorSelected)
+            {
+                return@EventHandler
+            }
+
+            val script = npcEditor.currentScript
+            if (script == null)
+            {
+                QuickAlert.create()
+                        .error()
+                        .header("Nie można dodać skryptu")
+                        .content("Brak załadowanego skryptu")
+                        .showAndWait()
+                return@EventHandler
+            }
+
+            npcEditor.save = { editor.addNpcScriptToBundle(npcEditor.currentScript!!) }
+
+            editor.addNpcScriptToBundle(script)
+        }
+
+
+        this.buttonQuickSaveNpc.onAction = EventHandler {
+            npcEditor.save()
+        }
+
+        this.buttonAddNewNpc.onAction = EventHandler {
+            if (this.isNpcEditorSelected && npcEditor.askForSaveIfNecessary())
+            {
+                val oldScript = npcEditor.currentScript
+
+                val dialog = FXUtils.loadDialog("npc/new", "Tworzenie nowego skryptu w zestawie zasobów", this.scene.stage)
+
+                dialog.setOnHiding {
+                    val newScript = npcEditor.currentScript
+                    if (newScript == null || oldScript === newScript)
+                    {
+                        QuickAlert
+                                .create()
+                                .warning()
+                                .header("Operacja przerwana!")
+                                .content("Skrypt nie zostal utworzony")
+                                .showAndWait()
+                        return@setOnHiding
+                    }
+
+                    npcEditor.save = { editor.addNpcScriptToBundle(npcEditor.currentScript!!) }
+                    editor.addNpcScriptToBundle(newScript)
+                }
+            }
+        }
+
+        this.buttonDeleteNpc.onAction = EventHandler {
+            val script = npcEditor.currentScript
+            val view = if (script == null) null else editor.currentResourceBundle?.getResource(MargoResource.Category.NPC_SCRIPTS, script.id)
+
+            if (script == null || view == null)
+            {
+                QuickAlert
+                        .create()
+                        .error()
+                        .header("Operacja przerwana!")
+                        .content("Nie mozesz usunac tego skryptu z zestawu poniewaz nie znajduje sie on w aktualnym zestawie")
+                        .showAndWait()
+
+                return@EventHandler
+            }
+
+            val result = QuickAlert.create()
+                    .confirmation()
+                    .buttonTypes(ButtonType("Tak", ButtonBar.ButtonData.YES), ButtonType("Nie", ButtonBar.ButtonData.NO))
+                    .header("Czy na pewno chcesz usunąć skrypt z zestawu?")
+                    .content("Skrypt: ${view.id}")
+                    .showAndWait()
+
+            if (result?.buttonData != ButtonBar.ButtonData.YES)
+            {
+                return@EventHandler
+            }
+
+            editor.currentResourceBundle!!.deleteResource(view)
+            editor.updateResourceView()
+
+            QuickAlert
+                    .create()
+                    .information()
+                    .header("Skrypt ${view.id}  został usunięty poprawnie!")
+                    .showAndWait()
+        }
+
+        this.fieldSearchNpc.textProperty().addListener { _, _, _ -> npcEditor.updateNpcsView() }
     }
 
+    private val executor: ExecutorService = Executors.newSingleThreadExecutor {
+        val thread = Thread(it, "AsyncHighlighterThread")
+        thread.isDaemon = true
+        thread
+    }
+
+    fun computeHighlightingAsync(area: CodeArea): Task<StyleSpans<Collection<String>>>
+    {
+        val task = object : Task<StyleSpans<Collection<String>>>()
+        {
+            override fun call(): StyleSpans<Collection<String>>
+            {
+                return MargoJEditor.INSTANCE.npcEditor.highlighter.computeHighlighting(area.text)
+            }
+        };
+
+        executor.execute(task);
+        return task;
+    }
 }

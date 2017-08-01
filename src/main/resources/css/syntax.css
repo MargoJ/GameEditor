@@ -1,0 +1,27 @@
+.comment {
+    -fx-fill: gray;
+}
+
+.variable_property {
+    -fx-fill: #ff6e00 !important;
+}
+
+.string {
+    -fx-fill: green;
+}
+
+.system_property {
+    -fx-fill: red;
+}
+
+.custom_property {
+    -fx-fill: blueviolet;
+}
+
+.keyword {
+    -fx-fill: blue;
+}
+
+.number {
+    -fx-fill: blue;
+}
