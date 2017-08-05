@@ -32,12 +32,12 @@ abstract class AbstractEditor<E : AbstractEditor<E, T>, T : MargoResource>(val e
             logger.trace("this.touched = $value")
         }
 
-    fun touch()
+    open fun touch()
     {
         this.touched = true
     }
 
-    fun addUndoAction(action: UndoAction<E>)
+    open  fun addUndoAction(action: UndoAction<E>)
     {
         logger.debug("New undo action $action")
         while (this.undoActions.size >= this.undoLimit)
@@ -56,17 +56,17 @@ abstract class AbstractEditor<E : AbstractEditor<E, T>, T : MargoResource>(val e
     val newestRedo: RedoAction<E>
         get() = this.redoActions.last
 
-    fun canUndo(): Boolean
+    open fun canUndo(): Boolean
     {
         return !this.undoActions.isEmpty()
     }
 
-    fun canRedo(): Boolean
+    open fun canRedo(): Boolean
     {
         return !this.redoActions.isEmpty()
     }
 
-    fun undo(): Boolean
+    open fun undo(): Boolean
     {
         if (!this.canUndo())
         {
@@ -82,7 +82,7 @@ abstract class AbstractEditor<E : AbstractEditor<E, T>, T : MargoResource>(val e
         return true
     }
 
-    fun redo(): Boolean
+    open fun redo(): Boolean
     {
         if (!this.canRedo())
         {
@@ -100,7 +100,7 @@ abstract class AbstractEditor<E : AbstractEditor<E, T>, T : MargoResource>(val e
         return true
     }
 
-    fun clearUndoRedoHistory()
+    open fun clearUndoRedoHistory()
     {
         logger.trace("clearUndoRedoHistory()")
         this.undoActions.clear()
@@ -108,7 +108,7 @@ abstract class AbstractEditor<E : AbstractEditor<E, T>, T : MargoResource>(val e
         this.updateUndoRedoMenu()
     }
 
-    fun saveAsWithDialog(): Boolean
+    open fun saveAsWithDialog(): Boolean
     {
         logger.trace("saveAsWithDialog()")
         if (this.currentEditingObject == null)
@@ -134,7 +134,7 @@ abstract class AbstractEditor<E : AbstractEditor<E, T>, T : MargoResource>(val e
         return true
     }
 
-    fun saveWithDialog(): Boolean
+    open fun saveWithDialog(): Boolean
     {
         logger.trace("saveWithDialog()")
         if (this.saveFile == null)
@@ -159,7 +159,7 @@ abstract class AbstractEditor<E : AbstractEditor<E, T>, T : MargoResource>(val e
         }
     }
 
-    fun askForSaveIfNecessary(): Boolean
+    open fun askForSaveIfNecessary(): Boolean
     {
         logger.trace("askForSaveIfNecessary()")
         if (this.currentEditingObject == null || !this.touched)
@@ -170,7 +170,7 @@ abstract class AbstractEditor<E : AbstractEditor<E, T>, T : MargoResource>(val e
         return this.askForSave()
     }
 
-    fun askForSave(): Boolean
+    open fun askForSave(): Boolean
     {
         logger.trace("askForSave()")
 

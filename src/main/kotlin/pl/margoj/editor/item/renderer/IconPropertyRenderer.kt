@@ -12,17 +12,17 @@ import pl.margoj.editor.MargoJEditor
 import pl.margoj.editor.gui.utils.QuickAlert
 import pl.margoj.editor.item.PropertyChangeUndoRedo
 import pl.margoj.mrf.item.properties.IconProperty
-import pl.margoj.mrf.item.serialization.ItemFormat
-import pl.margoj.mrf.item.serialization.ItemIcon
+import pl.margoj.mrf.MRFIconFormat
+import pl.margoj.mrf.MRFIcon
 import java.io.ByteArrayInputStream
 import java.io.FileInputStream
 import java.util.WeakHashMap
 import javax.imageio.ImageIO
 
-class IconPropertyRenderer : ItemPropertyRenderer<ItemIcon?, IconProperty, HBox>()
+class IconPropertyRenderer : ItemPropertyRenderer<MRFIcon?, IconProperty, HBox>()
 {
     private val fileChooser: FileChooser = FileChooser()
-    private val cache = WeakHashMap<HBox, ItemIcon>()
+    private val cache = WeakHashMap<HBox, MRFIcon>()
 
     init
     {
@@ -47,7 +47,7 @@ class IconPropertyRenderer : ItemPropertyRenderer<ItemIcon?, IconProperty, HBox>
             {
                 val iis = ImageIO.createImageInputStream(result)
                 val iterator = ImageIO.getImageReaders(iis)
-                val format = if (iterator.hasNext()) ItemFormat.getByFormat(iterator.next().formatName) else null
+                val format = if (iterator.hasNext()) MRFIconFormat.getByFormat(iterator.next().formatName) else null
 
                 if (format == null)
                 {
@@ -69,7 +69,7 @@ class IconPropertyRenderer : ItemPropertyRenderer<ItemIcon?, IconProperty, HBox>
                     fileBytes = IOUtils.toByteArray(it)
                 }
 
-                val icon = ItemIcon(fileBytes!!, format, image)
+                val icon = MRFIcon(fileBytes!!, format, image)
 
                 val itemEditor = MargoJEditor.INSTANCE.itemEditor
                 itemEditor.addUndoAction(PropertyChangeUndoRedo(property, itemEditor.currentItem!![property], icon))
@@ -92,7 +92,7 @@ class IconPropertyRenderer : ItemPropertyRenderer<ItemIcon?, IconProperty, HBox>
         return hbox
     }
 
-    override fun update(property: IconProperty, node: HBox, value: ItemIcon?)
+    override fun update(property: IconProperty, node: HBox, value: MRFIcon?)
     {
         if (value == null)
         {
@@ -103,7 +103,7 @@ class IconPropertyRenderer : ItemPropertyRenderer<ItemIcon?, IconProperty, HBox>
         this.updateNodeTo(node, value)
     }
 
-    override fun convert(property: IconProperty, node: HBox): ItemIcon?
+    override fun convert(property: IconProperty, node: HBox): MRFIcon?
     {
         return this.cache[node]
     }
@@ -113,7 +113,7 @@ class IconPropertyRenderer : ItemPropertyRenderer<ItemIcon?, IconProperty, HBox>
         this.updateNodeTo(node, placeholder)
     }
 
-    private fun updateNodeTo(node: HBox, icon: ItemIcon)
+    private fun updateNodeTo(node: HBox, icon: MRFIcon)
     {
         if (icon !== placeholder)
         {
@@ -137,7 +137,7 @@ class IconPropertyRenderer : ItemPropertyRenderer<ItemIcon?, IconProperty, HBox>
 
     private companion object
     {
-        val placeholder = ItemIcon(ByteArray(0),ItemFormat.PNG, ImageIO.read(IconPropertyRenderer::class.java.classLoader.getResourceAsStream("icons/placeholder.png")))
+        val placeholder = MRFIcon(ByteArray(0), MRFIconFormat.PNG, ImageIO.read(IconPropertyRenderer::class.java.classLoader.getResourceAsStream("icons/placeholder.png")))
     }
 }
 

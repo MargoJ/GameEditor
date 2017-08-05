@@ -9,14 +9,20 @@ import javafx.scene.input.MouseEvent
 import javafx.stage.Modality
 import javafx.stage.Stage
 import org.apache.logging.log4j.LogManager
+import pl.margoj.editor.gui.api.CustomScene
 import pl.margoj.editor.gui.scenes.DialogScene
 
 object FXUtils
 {
     private val logger = LogManager.getLogger(FXUtils::javaClass)
 
-    private fun isValidNumber(str: String, negative: Boolean): Boolean
+    private fun isValidNumber(str: String, negative: Boolean, empty: Boolean = false): Boolean
     {
+        if(empty && str.isEmpty())
+        {
+            return true
+        }
+
         val chars = str.toCharArray()
         if (chars.isEmpty())
         {
@@ -29,7 +35,7 @@ object FXUtils
             {
                 return false
             }
-            else if(chars[i] == '.')
+            else if (chars[i] == '.')
             {
                 if (dot)
                 {
@@ -40,7 +46,7 @@ object FXUtils
                     dot = true
                 }
             }
-            else if(!Character.isDigit(chars[i]))
+            else if (!Character.isDigit(chars[i]))
             {
                 return false
             }
@@ -49,9 +55,9 @@ object FXUtils
         return true
     }
 
-    fun makeNumberField(field: TextField, negative: Boolean)
+    fun makeNumberField(field: TextField, negative: Boolean, empty: Boolean = false)
     {
-        if (!isValidNumber(field.text, negative))
+        if (!isValidNumber(field.text, negative, empty))
         {
             field.text = "0"
         }
@@ -59,9 +65,12 @@ object FXUtils
         field.textProperty().addListener { _, oldValue, newValue ->
             if (newValue.isEmpty())
             {
-                field.text = newValue
+                if (!empty)
+                {
+                    field.text = newValue
+                }
             }
-            else if (!isValidNumber(newValue, negative))
+            else if (!isValidNumber(newValue, negative, empty))
             {
                 field.text = oldValue
             }
@@ -71,6 +80,11 @@ object FXUtils
     fun setAlertIcon(alert: Alert, icon: Image)
     {
         (alert.dialogPane.scene.window as Stage).icons.setAll(icon)
+    }
+
+    fun setStageIcon(stage: Stage, iconName: String)
+    {
+        stage.icons.setAll(Image(CustomScene::class.java.classLoader.getResourceAsStream(iconName)))
     }
 
     fun loadDialog(resource: String, title: String, owner: Stage? = null, data: Any? = null): Stage

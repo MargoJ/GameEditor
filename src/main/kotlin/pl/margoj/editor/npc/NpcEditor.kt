@@ -53,6 +53,7 @@ class NpcEditor(editor: MargoJEditor) : AbstractEditor<NpcEditor, NpcScript>(edi
                 this.codeArea.isDisable = false
                 this.updateContent(value.content)
                 this.workspaceController.titledPaneNpcEditorTitle.text = "Edytor npc: ${value.id}.mjn"
+                this.codeArea.undoManager.forgetHistory()
             }
         }
 
@@ -62,13 +63,17 @@ class NpcEditor(editor: MargoJEditor) : AbstractEditor<NpcEditor, NpcScript>(edi
     {
         this.codeArea = codeArea
         codeArea.isDisable = true
+        codeArea.undoManager.redoAvailableProperty().addListener { _, _, _ -> this.updateUndoRedoMenu() }
+        codeArea.undoManager.undoAvailableProperty().addListener { _, _, _ -> this.updateUndoRedoMenu() }
+        this.updateUndoRedoMenu()
 
         logger.trace("init")
 
         val KEYWORDS = arrayOf(
-                "nazwa", "npc", "dialog", "opcja", "ustaw",
-                "i", "lub", "oraz",
-                "jeżeli", "dopóki",
+                "nazwa", "grafika", "poziom", "npc", "dialog", "opcja", "ustaw",
+                "i", "lub", "oraz", "nie",
+                "prawda", "fałsz",
+                "jeżeli", "przeciwnie", "dopóki", "każdy", "w",
                 "dodaj", "odejmij", "pomnóż", "podziel"
         )
         val PROPERTY_PATTERN = "[\\p{L}0-9_.]+"
@@ -88,7 +93,6 @@ class NpcEditor(editor: MargoJEditor) : AbstractEditor<NpcEditor, NpcScript>(edi
 
     fun updateContent(text: String)
     {
-        this.currentScript?.content = text
         this.codeArea.replaceText(0, this.codeArea.text.length, text)
     }
 
@@ -106,7 +110,7 @@ class NpcEditor(editor: MargoJEditor) : AbstractEditor<NpcEditor, NpcScript>(edi
         val sortedSet = TreeSet<Text> { o1, o2 -> o1.text.compareTo(o2.text); }
 
         this.editor.currentResourceBundle!!.getResourcesByCategory(MargoResource.Category.NPC_SCRIPTS).forEach { view ->
-            val text = Text("${view.id} [${view.name}]")
+            val text = Text(view.id)
 
             text.onMouseClicked = EventHandler {
                 if (it.clickCount == 2)
@@ -177,8 +181,30 @@ class NpcEditor(editor: MargoJEditor) : AbstractEditor<NpcEditor, NpcScript>(edi
         }
     }
 
+    override fun canUndo(): Boolean
+    {
+        return this.codeArea.undoManager.isUndoAvailable
+    }
+
+    override fun canRedo(): Boolean
+    {
+        return this.codeArea.undoManager.isRedoAvailable
+    }
+
+    override fun undo(): Boolean
+    {
+        return this.codeArea.undoManager.undo()
+    }
+
+    override fun redo(): Boolean
+    {
+        return this.codeArea.undoManager.redo()
+    }
+
     override fun updateUndoRedoMenu()
     {
-        this.defaultUndoRedoUpdate(this.workspaceController.menuNpcUndo, this.workspaceController.menuNpcRedo)
+        this.workspaceController.menuNpcUndo.isDisable = !this.canUndo()
+        this.workspaceController.menuNpcRedo.isDisable = !this.canRedo()
+        this.touch()
     }
 }

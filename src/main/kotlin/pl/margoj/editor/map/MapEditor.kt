@@ -32,8 +32,7 @@ import java.util.ArrayList
 import java.util.Collections
 import java.util.HashMap
 
-private val GREEN_COLLISION = javafx.scene.paint.Color(0.0, 1.0, 0.0, 0.4)
-private val RED_COLLISION = javafx.scene.paint.Color(1.0, 0.0, 0.0, 0.4)
+private val COLLISION = javafx.scene.paint.Color(1.0, 1.0, 1.0, 0.8)
 
 class MapEditor(editor: MargoJEditor) : AbstractEditor<MapEditor, MargoMap>(editor, FileChooser.ExtensionFilter("Mapa formatu MargoJ (*.mjm)", "*.mjm"), ".mjm")
 {
@@ -71,12 +70,12 @@ class MapEditor(editor: MargoJEditor) : AbstractEditor<MapEditor, MargoMap>(edit
         {
             logger.trace("currentMap = $currentMap")
 
-            if(value != null && !value.validate())
+            if (value != null && !value.validate())
             {
                 field = null
                 return
             }
-            if(field != value)
+            if (field != value)
             {
                 field = value
                 this.clearUndoRedoHistory()
@@ -199,7 +198,7 @@ class MapEditor(editor: MargoJEditor) : AbstractEditor<MapEditor, MargoMap>(edit
 
         this.tilesets.put(AutoTileset.AUTO, AutoTileset(AutoTileset.AUTO, autos))
 
-        if(this.tilesetListSelected)
+        if (this.tilesetListSelected)
         {
             this.selectTilesetsOnLeftMenu();
         }
@@ -312,8 +311,11 @@ class MapEditor(editor: MargoJEditor) : AbstractEditor<MapEditor, MargoMap>(edit
 
             if (this.currentLayer == MargoMap.COLLISION_LAYER)
             {
-                g.fill = if (this.currentMap!!.getCollisionAt(point)) RED_COLLISION else GREEN_COLLISION
-                g.fillRect(point.x * 32.0 + 6, point.y * 32.0 + 6, 20.0, 20.0)
+                if (this.currentMap!!.getCollisionAt(point))
+                {
+                    g.fill = COLLISION
+                    g.fillRect(point.x * 32.0 + 3, point.y * 32.0 + 3, 26.0, 26.0)
+                }
             }
 
             if (this.showGrid)

@@ -6,6 +6,7 @@ import javafx.scene.layout.Pane
 import javafx.stage.Stage
 import org.apache.logging.log4j.LogManager
 import pl.margoj.editor.gui.utils.FXMLJarLoader
+import pl.margoj.editor.gui.utils.FXUtils
 
 abstract class CustomScene<T : CustomController>(val resource: String, val data: Any? = null)
 {
@@ -62,6 +63,6 @@ abstract class CustomScene<T : CustomController>(val resource: String, val data:
     protected fun setIcon(iconName: String)
     {
         logger.trace("setIcon($iconName)")
-        stage.icons.setAll(Image(CustomScene::class.java.classLoader.getResourceAsStream(iconName)))
+        FXUtils.setStageIcon(this.stage, iconName)
     }
 }

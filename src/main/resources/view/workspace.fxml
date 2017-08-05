@@ -647,7 +647,12 @@
                                                             <Insets right="5.0" />
                                                          </HBox.margin>
                                                       </Button>
-                                                      <Button fx:id="buttonQuickSaveNpc" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Zapisz" HBox.hgrow="ALWAYS" />
+                                                      <Button disable="true" fx:id="buttonNpcGraphics" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Menedżer Grafik">
+                                                         <HBox.margin>
+                                                            <Insets right="5.0" />
+                                                         </HBox.margin>
+                                                      </Button>
+                                                      <Button fx:id="buttonQuickSaveNpc" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Zapisz" HBox.hgrow="ALWAYS" />
                                                    </children>
                                                    <VBox.margin>
                                                       <Insets bottom="5.0" top="10.0" />

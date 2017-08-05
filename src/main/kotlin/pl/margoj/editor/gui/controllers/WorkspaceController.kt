@@ -6,7 +6,8 @@ import javafx.event.EventHandler
 import javafx.fxml.FXML
 import javafx.scene.canvas.Canvas
 import javafx.scene.control.*
-import javafx.scene.input.*
+import javafx.scene.input.KeyCharacterCombination
+import javafx.scene.input.MouseEvent
 import javafx.scene.layout.AnchorPane
 import javafx.scene.layout.HBox
 import javafx.scene.layout.StackPane
@@ -33,8 +34,8 @@ import pl.margoj.editor.map.cursor.FillingCursor
 import pl.margoj.editor.map.cursor.SingleElementCursor
 import pl.margoj.editor.map.objects.GatewayObjectTool
 import pl.margoj.editor.map.objects.MapSpawnObjectTool
+import pl.margoj.editor.map.objects.NpcObjectTool
 import pl.margoj.editor.map.objects.RemoveObjectTool
-import pl.margoj.editor.npc.NpcEditorTextChangeUndoRedo
 import pl.margoj.editor.utils.FileUtils
 import pl.margoj.mrf.MargoResource
 import pl.margoj.mrf.bundle.local.MargoMRFResourceBundle
@@ -45,7 +46,6 @@ import java.util.Optional
 import java.util.ResourceBundle
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
-import kotlin.concurrent.withLock
 
 
 class WorkspaceController : CustomController
@@ -300,6 +300,9 @@ class WorkspaceController : CustomController
     lateinit var buttonAddNewNpc: Button
 
     @FXML
+    lateinit var buttonNpcGraphics: Button
+
+    @FXML
     lateinit var buttonDeleteNpc: Button
 
     @FXML
@@ -402,8 +405,7 @@ class WorkspaceController : CustomController
 
         mapEditor.mapCursorBox = mapCursorBox
 
-        scene.stage.onCloseRequest = EventHandler {
-            event ->
+        scene.stage.onCloseRequest = EventHandler { event ->
             logger.trace("stage.onCloseRequest()")
 
             editor.editors
@@ -464,6 +466,8 @@ class WorkspaceController : CustomController
         editor.addResourceDisableListener { this.menuNpcSaveToBundle.isDisable = it }
         editor.addResourceDisableListener { this.buttonDeleteNpc.isDisable = it }
         editor.addResourceDisableListener { this.buttonAddNewNpc.isDisable = it }
+        editor.addResourceDisableListener { this.buttonNpcGraphics.isDisable = it }
+        editor.addResourceDisableListener { this.buttonQuickSaveNpc.isDisable = it }
         editor.addResourceDisableListener { this.fieldSearchNpc.isDisable = it }
 
         btnResourceNew.onAction = EventHandler {
@@ -715,6 +719,7 @@ class WorkspaceController : CustomController
         // init objects
         mapEditor.mapObjectTools.add(GatewayObjectTool())
         mapEditor.mapObjectTools.add(MapSpawnObjectTool())
+        mapEditor.mapObjectTools.add(NpcObjectTool())
         mapEditor.mapObjectTools.add(RemoveObjectTool())
 
         // =========
@@ -902,44 +907,9 @@ class WorkspaceController : CustomController
         AnchorPane.setBottomAnchor(scrollPane, 0.0)
         AnchorPane.setRightAnchor(scrollPane, 0.0)
 
-        val checkThread = object : Thread()
-        {
-            override fun run()
-            {
-                while (true)
-                {
-                    if (npcEditor.previousText == null)
-                    {
-                        npcEditor.previousText = codeArea.text
-                    }
-                    else if (npcEditor.lastModified + 200L < System.currentTimeMillis() && npcEditor.previousText != codeArea.text)
-                    {
-                        npcEditor.lock.withLock {
-                            val previous = npcEditor.previousText!!
-                            val current = codeArea.text
-                            npcEditor.previousText = current
-                            npcEditor.lastModified = System.currentTimeMillis()
-
-                            Platform.runLater {
-                                npcEditor.addUndoAction(NpcEditorTextChangeUndoRedo(npcEditor, previous, current))
-                            }
-                        }
-                    }
-
-                    Thread.sleep(100)
-                }
-            }
-        }
-        checkThread.isDaemon = true
-        checkThread.start()
-
-        codeArea.undoManager.close()
-        codeArea.textProperty().addListener { observable, _, new ->
-            npcEditor.lastModified = System.currentTimeMillis()
-            npcEditor.updateContent(new)
-        }
-
         codeArea.paragraphGraphicFactory = LineNumberFactory.get(codeArea)
+
+        codeArea.textProperty()
 
         codeArea.richChanges()
                 .filter { ch -> ch.inserted != ch.removed }
@@ -967,19 +937,50 @@ class WorkspaceController : CustomController
                     }
                 }
 
-        val ctrlZ = KeyCodeCombination(KeyCode.Z, KeyCombination.SHORTCUT_DOWN)
-        val ctrlY = KeyCodeCombination(KeyCode.Y, KeyCombination.SHORTCUT_DOWN)
+        codeArea.textProperty().addListener { _, _, newText ->
+            npcEditor.lastModified = System.currentTimeMillis()
+            npcEditor.currentScript?.content = newText
+        }
 
-        codeArea.onKeyPressed = EventHandler {
-            if(ctrlZ.match(it))
+        val cachedException = object : RuntimeException()
+        {
+            override fun fillInStackTrace(): Throwable
             {
-                npcEditor.undo()
-            }
-            if(ctrlY.match(it))
-            {
-                npcEditor.redo()
+                return this
             }
         }
+
+        Thread.currentThread().uncaughtExceptionHandler = Thread.UncaughtExceptionHandler { t, e ->
+            if(e === cachedException)
+            {
+                return@UncaughtExceptionHandler
+            }
+
+            System.err.println("Exception in main application thread")
+            e.printStackTrace()
+        }
+
+        codeArea.richChanges()
+                .filter { it.inserted.text == "\n" }
+                .subscribe {
+                    val current = codeArea.getParagraph(codeArea.currentParagraph + 1)
+                    if (current.text.trim().isEmpty())
+                    {
+                        val previous = codeArea.getParagraph(codeArea.currentParagraph).text.toCharArray()
+                        var i = 0
+                        val indent = StringBuilder()
+                        while (i < previous.size && previous[i] == '\t')
+                        {
+                            indent.append('\t')
+                            i++
+                        }
+
+                        codeArea.insertText(codeArea.currentParagraph + 1, 0, indent.toString())
+                        codeArea.requestFollowCaret()
+
+                        throw cachedException
+                    }
+                }
 
         this.menuNpcNew.onAction = EventHandler {
             if (this.isNpcEditorSelected && npcEditor.askForSaveIfNecessary())
@@ -1093,6 +1094,10 @@ class WorkspaceController : CustomController
                     editor.addNpcScriptToBundle(newScript)
                 }
             }
+        }
+
+        this.buttonNpcGraphics.onAction = EventHandler {
+            FXUtils.loadDialog("graphics/graphics", "Menadżer grafik", this.scene.stage)
         }
 
         this.buttonDeleteNpc.onAction = EventHandler {
