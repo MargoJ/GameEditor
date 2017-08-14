@@ -909,8 +909,6 @@ class WorkspaceController : CustomController
 
         codeArea.paragraphGraphicFactory = LineNumberFactory.get(codeArea)
 
-        codeArea.textProperty()
-
         codeArea.richChanges()
                 .filter { ch -> ch.inserted != ch.removed }
                 .supplyTask { this.computeHighlightingAsync(codeArea) }
@@ -929,6 +927,8 @@ class WorkspaceController : CustomController
                 .subscribe {
                     try
                     {
+                        npcEditor.currentScript!!.content = codeArea.text
+
                         codeArea.setStyleSpans(0, it)
                     }
                     catch (e: IllegalStateException)
@@ -936,11 +936,6 @@ class WorkspaceController : CustomController
                         // ignored, caused by style being changed when the code changes
                     }
                 }
-
-        codeArea.textProperty().addListener { _, _, newText ->
-            npcEditor.lastModified = System.currentTimeMillis()
-            npcEditor.currentScript?.content = newText
-        }
 
         val cachedException = object : RuntimeException()
         {

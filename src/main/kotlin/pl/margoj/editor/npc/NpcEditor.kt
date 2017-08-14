@@ -33,8 +33,6 @@ class NpcEditor(editor: MargoJEditor) : AbstractEditor<NpcEditor, NpcScript>(edi
     val deserializer = NpcScriptDeserializer()
 
     var lock = ReentrantLock()
-    var previousText by SynchronizedVariable<String?>(lock, null)
-    var lastModified by SynchronizedVariable<Long>(lock, 0)
 
     var currentScript: NpcScript? = null
         set(value)
@@ -42,7 +40,6 @@ class NpcEditor(editor: MargoJEditor) : AbstractEditor<NpcEditor, NpcScript>(edi
             logger.trace("currentScript = $value")
             if (value != field)
             {
-                this.previousText = null
                 this.clearUndoRedoHistory()
             }
 
@@ -70,11 +67,12 @@ class NpcEditor(editor: MargoJEditor) : AbstractEditor<NpcEditor, NpcScript>(edi
         logger.trace("init")
 
         val KEYWORDS = arrayOf(
-                "nazwa", "grafika", "poziom", "npc", "dialog", "opcja", "ustaw",
+                "nazwa", "grafika", "poziom", "npc", "dialog", "opcja", "ustaw", "wykonaj",
                 "i", "lub", "oraz", "nie",
                 "prawda", "fałsz",
                 "jeżeli", "przeciwnie", "dopóki", "każdy", "w",
-                "dodaj", "odejmij", "pomnóż", "podziel"
+                "dodaj", "odejmij", "pomnóż", "podziel",
+                "posiada", "dodaj", "zabierz", "dodaj", "zabierz", "złoto"
         )
         val PROPERTY_PATTERN = "[\\p{L}0-9_.]+"
 
