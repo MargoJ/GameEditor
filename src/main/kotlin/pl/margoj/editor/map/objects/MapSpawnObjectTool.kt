@@ -16,7 +16,7 @@ class MapSpawnObjectTool : MapObjectTool<MapSpawnObject>("Punkt spawnu", "icons/
         val editor = MargoJEditor.INSTANCE.mapEditor
 
         val old = map.getObject(point)
-        if(old is MapSpawnObject)
+        if (old is MapSpawnObject)
         {
             editor.redrawObject(old)
             return

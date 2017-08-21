@@ -60,20 +60,20 @@ class MapMetadataDialogController : CustomController
             val oldMeta = this.map.metadata
 
             val newPvP = this.textToOption(this.choicePvP.selectionModel.selectedItem)
-            if(map.getMetadata(MapPvP::class.java) != newPvP)
+            if (map.getMetadata(MapPvP::class.java) != newPvP)
             {
                 map.setMetadata(newPvP)
                 anyChanges = true
             }
 
             val newWelcome = this.fieldWelcomeMessage.text
-            if(map.getMetadata(WelcomeMessage::class.java).value != newWelcome)
+            if (map.getMetadata(WelcomeMessage::class.java).value != newWelcome)
             {
                 map.setMetadata(WelcomeMessage(newWelcome))
                 anyChanges = true
             }
 
-            if(anyChanges)
+            if (anyChanges)
             {
                 val mapEditor = MargoJEditor.INSTANCE.mapEditor
                 mapEditor.addUndoAction(MetadataUndoRedo(oldMeta, map.metadata))

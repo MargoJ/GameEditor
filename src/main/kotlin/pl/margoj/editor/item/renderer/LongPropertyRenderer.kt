@@ -44,7 +44,7 @@ class LongPropertyRenderer : ItemPropertyRenderer<Long, LongProperty, TextField>
         {
             longValue = node.text.toLong()
         }
-        catch(e: NumberFormatException)
+        catch (e: NumberFormatException)
         {
             error("Wartość dla '${property.name}' (${node.text}) nie jest liczbą całkowitą")
             return null

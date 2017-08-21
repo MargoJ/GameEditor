@@ -40,7 +40,7 @@ class MapObjectUndoRedo(
         val redraws = HashSet<Point>()
         val current = map.getObject(position)
 
-        if(current != null)
+        if (current != null)
         {
             redraws.addAll(editor.getToolForObject(current)!!.getPoints(current))
         }

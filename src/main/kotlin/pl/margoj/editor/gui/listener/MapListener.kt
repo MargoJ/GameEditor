@@ -57,7 +57,7 @@ class MapListener(private val editor: MapEditor) : EventHandler<MouseEvent>
 
     private fun handleNormalLayer(event: MouseEvent, x: Int, y: Int)
     {
-        when(event.eventType)
+        when (event.eventType)
         {
             MouseEvent.MOUSE_PRESSED ->
             {
@@ -111,7 +111,7 @@ class MapListener(private val editor: MapEditor) : EventHandler<MouseEvent>
 
     private fun handleObjectLayer(event: MouseEvent, x: Int, y: Int)
     {
-        if(event.eventType != MouseEvent.MOUSE_RELEASED)
+        if (event.eventType != MouseEvent.MOUSE_RELEASED)
         {
             return
         }

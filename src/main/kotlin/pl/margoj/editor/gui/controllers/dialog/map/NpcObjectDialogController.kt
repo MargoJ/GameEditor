@@ -71,9 +71,9 @@ class NpcObjectDialogController : CustomController
         this.buttonNpcConirm.onAction = EventHandler {
             val errors = ArrayList<String>()
             val id = this.fieldNpcId.text
-            val graphics = if(this.fieldNpcGraphics.text.isNotEmpty()) this.fieldNpcGraphics.text else null
-            val name = if(this.fieldNpcName.text.isNotEmpty()) this.fieldNpcName.text else null
-            val level = if(this.fieldNpcLevel.text.isNotEmpty()) this.fieldNpcLevel.text.toInt() else null
+            val graphics = if (this.fieldNpcGraphics.text.isNotEmpty()) this.fieldNpcGraphics.text else null
+            val name = if (this.fieldNpcName.text.isNotEmpty()) this.fieldNpcName.text else null
+            val level = if (this.fieldNpcLevel.text.isNotEmpty()) this.fieldNpcLevel.text.toInt() else null
 
             if (id.isEmpty() || !MargoResource.ID_PATTERN.matcher(id).matches())
             {
@@ -89,7 +89,7 @@ class NpcObjectDialogController : CustomController
             val old = this.map.getObject(position)
             val new = NpcMapObject(this.position, id, graphics, name, level)
 
-            if(new != old)
+            if (new != old)
             {
                 val mapEditor = MargoJEditor.INSTANCE.mapEditor
                 mapEditor.currentMap!!.addObject(new)

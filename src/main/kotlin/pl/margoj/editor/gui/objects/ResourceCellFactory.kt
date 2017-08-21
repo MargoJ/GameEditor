@@ -37,8 +37,7 @@ class ResourceCellFactory(private val editor: MargoJEditor) : Callback<ListView<
 
                 this.contextMenu = menu
 
-                this.setOnMouseClicked {
-                    event ->
+                this.setOnMouseClicked { event ->
                     if (event.clickCount == 2)
                     {
                         editor.loadResource(view)

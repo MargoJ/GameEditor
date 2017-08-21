@@ -18,7 +18,7 @@ object FXUtils
 
     private fun isValidNumber(str: String, negative: Boolean, empty: Boolean = false): Boolean
     {
-        if(empty && str.isEmpty())
+        if (empty && str.isEmpty())
         {
             return true
         }

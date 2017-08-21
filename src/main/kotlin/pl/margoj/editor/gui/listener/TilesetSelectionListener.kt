@@ -1,15 +1,14 @@
 package pl.margoj.editor.gui.listener
 
-import pl.margoj.editor.gui.utils.FXUtils
-import pl.margoj.editor.map.MapEditor
-import pl.margoj.editor.map.RectangleSelection
-import pl.margoj.mrf.map.Point
-
 import javafx.event.EventHandler
 import javafx.scene.canvas.Canvas
 import javafx.scene.control.ScrollPane
 import javafx.scene.input.MouseEvent
 import javafx.scene.paint.Color
+import pl.margoj.editor.gui.utils.FXUtils
+import pl.margoj.editor.map.MapEditor
+import pl.margoj.editor.map.RectangleSelection
+import pl.margoj.mrf.map.Point
 
 class TilesetSelectionListener(private val canvas: Canvas, private val editor: MapEditor, private val tilesetCanvasContainer: ScrollPane) : EventHandler<MouseEvent>
 {
@@ -33,7 +32,7 @@ class TilesetSelectionListener(private val canvas: Canvas, private val editor: M
 
     private fun doHandle(event: MouseEvent, inBounds: Boolean, x: Int, y: Int)
     {
-        when(event.eventType)
+        when (event.eventType)
         {
             MouseEvent.MOUSE_PRESSED ->
             {

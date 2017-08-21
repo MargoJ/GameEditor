@@ -1,9 +1,5 @@
 package pl.margoj.editor.gui.controllers.dialog.map
 
-import java.net.URL
-import java.util.ArrayList
-import java.util.ResourceBundle
-
 
 import javafx.fxml.FXML
 import javafx.scene.control.Button
@@ -14,6 +10,9 @@ import pl.margoj.editor.gui.api.CustomScene
 import pl.margoj.editor.gui.utils.FXUtils
 import pl.margoj.mrf.MargoResource
 import pl.margoj.mrf.map.MargoMap
+import java.net.URL
+import java.util.ArrayList
+import java.util.ResourceBundle
 
 class NewMapDialogController : CustomController
 {

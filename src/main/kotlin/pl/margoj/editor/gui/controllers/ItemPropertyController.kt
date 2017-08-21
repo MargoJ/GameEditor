@@ -7,7 +7,7 @@ import pl.margoj.editor.gui.api.CustomController
 import java.net.URL
 import java.util.ResourceBundle
 
-class ItemPropertyController: CustomController
+class ItemPropertyController : CustomController
 {
     override fun initialize(location: URL?, resources: ResourceBundle?)
     {

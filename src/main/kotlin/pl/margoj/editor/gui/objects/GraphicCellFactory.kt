@@ -4,7 +4,10 @@ import javafx.embed.swing.SwingFXUtils
 import javafx.event.EventHandler
 import javafx.geometry.Pos
 import javafx.scene.Scene
-import javafx.scene.control.*
+import javafx.scene.control.ContextMenu
+import javafx.scene.control.ListCell
+import javafx.scene.control.ListView
+import javafx.scene.control.MenuItem
 import javafx.scene.image.ImageView
 import javafx.scene.layout.HBox
 import javafx.scene.text.Text
@@ -58,7 +61,7 @@ class GraphicCellFactory(private val graphicsManagerController: GraphicsManagerC
                     val stage = Stage()
                     stage.isResizable = false
                     stage.title = view.name
-                    stage.scene  = Scene(parent)
+                    stage.scene = Scene(parent)
                     stage.initOwner(graphicsManagerController.scene.stage)
                     stage.sizeToScene()
                     FXUtils.setStageIcon(stage, "icon.png")
@@ -69,8 +72,7 @@ class GraphicCellFactory(private val graphicsManagerController: GraphicsManagerC
 
                 this.contextMenu = menu
 
-                this.setOnMouseClicked {
-                    event ->
+                this.setOnMouseClicked { event ->
                     if (event.clickCount == 2)
                     {
                         showGraphic.fire()

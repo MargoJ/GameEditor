@@ -37,7 +37,7 @@ abstract class AbstractEditor<E : AbstractEditor<E, T>, T : MargoResource>(val e
         this.touched = true
     }
 
-    open  fun addUndoAction(action: UndoAction<E>)
+    open fun addUndoAction(action: UndoAction<E>)
     {
         logger.debug("New undo action $action")
         while (this.undoActions.size >= this.undoLimit)

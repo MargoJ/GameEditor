@@ -44,7 +44,7 @@ class DoublePropertyRenderer : ItemPropertyRenderer<Double, DoubleProperty, Text
         {
             doubleValue = node.text.toDouble()
         }
-        catch(e: NumberFormatException)
+        catch (e: NumberFormatException)
         {
             error("Wartość dla '${property.name}' (${node.text}) nie jest liczbą!")
             return null

@@ -60,14 +60,14 @@ object LastBundlesUtil
 
         var all = this.getLastBundles()
 
-        if(all.contains(new))
+        if (all.contains(new))
         {
             all.remove(new)
         }
 
         all.add(0, new)
 
-        while(all.size > 30)
+        while (all.size > 30)
         {
             all = all.subList(0, 30)
         }

@@ -116,7 +116,7 @@ class ItemEditor(editor: MargoJEditor) : AbstractEditor<ItemEditor, MargoItem>(e
             val text = Text("${view.id} [${view.name}]")
 
             text.onMouseClicked = EventHandler {
-                if(it.clickCount == 2)
+                if (it.clickCount == 2)
                 {
                     this.loadFromBundle(this.editor.currentResourceBundle!!.loadResource(view)!!)
                 }

@@ -90,7 +90,7 @@ class GatewayObjectDialogController : CustomController
             val old = this.map.getObject(position)
             val new = GatewayObject(this.position, Point(x, y), id)
 
-            if(new != old)
+            if (new != old)
             {
                 val mapEditor = MargoJEditor.INSTANCE.mapEditor
                 mapEditor.currentMap!!.addObject(new)

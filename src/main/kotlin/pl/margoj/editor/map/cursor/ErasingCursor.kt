@@ -1,7 +1,5 @@
 package pl.margoj.editor.map.cursor
 
-import java.util.LinkedList
-
 import pl.margoj.editor.map.RectangleSelection
 import pl.margoj.editor.map.Selection
 import pl.margoj.editor.map.actions.CollisionsUndoRedo
@@ -9,6 +7,7 @@ import pl.margoj.editor.map.actions.SimpleUndoRedo
 import pl.margoj.editor.map.actions.SimpleUndoRedo.Change
 import pl.margoj.mrf.map.Point
 import pl.margoj.mrf.map.fragment.empty.EmptyMapFragment
+import java.util.LinkedList
 
 class ErasingCursor : Cursor
 {

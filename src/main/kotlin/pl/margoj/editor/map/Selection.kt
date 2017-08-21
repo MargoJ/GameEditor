@@ -1,10 +1,8 @@
 package pl.margoj.editor.map
 
-import java.util.ArrayList
-
-import pl.margoj.mrf.map.Point
-
 import javafx.scene.canvas.GraphicsContext
+import pl.margoj.mrf.map.Point
+import java.util.ArrayList
 
 open class Selection(points: Collection<Point>) : Iterable<Point>
 {
@@ -22,7 +20,7 @@ open class Selection(points: Collection<Point>) : Iterable<Point>
         {
             field = points
 
-            if(points == null)
+            if (points == null)
             {
                 return
             }

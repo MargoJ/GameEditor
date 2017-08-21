@@ -1,18 +1,16 @@
 package pl.margoj.editor.gui.controllers.dialog.map
 
-import java.net.URL
-import java.util.ArrayList
-import java.util.ResourceBundle
-
+import javafx.fxml.FXML
+import javafx.scene.control.Button
+import javafx.scene.control.TextField
 import pl.margoj.editor.MargoJEditor
 import pl.margoj.editor.gui.api.CustomController
 import pl.margoj.editor.gui.api.CustomScene
 import pl.margoj.editor.gui.utils.FXUtils
-
-import javafx.fxml.FXML
-import javafx.scene.control.Button
-import javafx.scene.control.TextField
 import pl.margoj.editor.map.actions.WholeMapReplacement
+import java.net.URL
+import java.util.ArrayList
+import java.util.ResourceBundle
 
 class EditMapDialogController : CustomController
 {

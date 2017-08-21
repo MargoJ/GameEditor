@@ -946,7 +946,7 @@ class WorkspaceController : CustomController
         }
 
         Thread.currentThread().uncaughtExceptionHandler = Thread.UncaughtExceptionHandler { t, e ->
-            if(e === cachedException)
+            if (e === cachedException)
             {
                 return@UncaughtExceptionHandler
             }

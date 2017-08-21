@@ -140,8 +140,7 @@ class TilesetEditor(val workspaceController: WorkspaceController)
         }
 
         workspaceController.tilesetButtonUpdateLocal.onAction = EventHandler {
-            bundle!!.resources.filter { it.category == MargoResource.Category.TILESETS }.forEach {
-                view ->
+            bundle!!.resources.filter { it.category == MargoResource.Category.TILESETS }.forEach { view ->
                 val file = File(FileUtils.TILESETS_DIRECTORY, "${view.id}.png")
 
                 FileOutputStream(file).use {
@@ -153,12 +152,11 @@ class TilesetEditor(val workspaceController: WorkspaceController)
         }
 
         workspaceController.tilesetButtonUpdateBundle.onAction = EventHandler {
-            bundle!!.resources.filter { it.category == MargoResource.Category.TILESETS }.forEach {
-                view ->
+            bundle!!.resources.filter { it.category == MargoResource.Category.TILESETS }.forEach { view ->
                 val filename = "${view.id}.png"
                 val file = File(FileUtils.TILESETS_DIRECTORY, filename)
 
-                if(file.exists())
+                if (file.exists())
                 {
                     bundle!!.saveResource(ResourceView(filename.substring(0, filename.lastIndexOf('.')), "", MargoResource.Category.TILESETS, filename), FileInputStream(file))
                     bundle!!.touched = true
@@ -173,8 +171,7 @@ class TilesetEditor(val workspaceController: WorkspaceController)
 
     private fun addListener(list: ListView<String>, other: ListView<String>, enable: Button, disable: Button)
     {
-        list.selectionModel.selectedItemProperty().addListener({
-            _, _, new ->
+        list.selectionModel.selectedItemProperty().addListener({ _, _, new ->
 
             if (new != null)
             {

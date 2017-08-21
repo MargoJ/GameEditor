@@ -11,9 +11,9 @@ import org.apache.commons.io.IOUtils
 import pl.margoj.editor.MargoJEditor
 import pl.margoj.editor.gui.utils.QuickAlert
 import pl.margoj.editor.item.PropertyChangeUndoRedo
-import pl.margoj.mrf.item.properties.IconProperty
-import pl.margoj.mrf.MRFIconFormat
 import pl.margoj.mrf.MRFIcon
+import pl.margoj.mrf.MRFIconFormat
+import pl.margoj.mrf.item.properties.IconProperty
 import java.io.ByteArrayInputStream
 import java.io.FileInputStream
 import java.util.WeakHashMap
@@ -122,7 +122,7 @@ class IconPropertyRenderer : ItemPropertyRenderer<MRFIcon?, IconProperty, HBox>(
 
         var cachedImage = icon.cachedImage
 
-        if(cachedImage == null)
+        if (cachedImage == null)
         {
             cachedImage = ImageIO.read(ByteArrayInputStream(icon.image))
         }

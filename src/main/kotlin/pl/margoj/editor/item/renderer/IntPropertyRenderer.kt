@@ -44,7 +44,7 @@ class IntPropertyRenderer : ItemPropertyRenderer<Int, IntProperty, TextField>()
         {
             intValue = node.text.toInt()
         }
-        catch(e: NumberFormatException)
+        catch (e: NumberFormatException)
         {
             error("Wartość dla '${property.name}' (${node.text}) nie jest liczbą całkowitą")
             return null

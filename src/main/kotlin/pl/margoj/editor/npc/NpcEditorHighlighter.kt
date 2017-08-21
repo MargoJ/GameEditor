@@ -63,7 +63,7 @@ class NpcEditorHighlighter
 
             for ((group, pattern) in patterns)
             {
-                if(matcher.group(group) != null)
+                if (matcher.group(group) != null)
                 {
                     styleClass = pattern.second
                     break

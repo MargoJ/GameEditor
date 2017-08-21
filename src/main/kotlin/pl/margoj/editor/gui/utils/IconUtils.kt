@@ -1,11 +1,5 @@
 package pl.margoj.editor.gui.utils
 
-import javax.imageio.ImageIO
-
-import java.awt.image.BufferedImage
-import java.io.IOException
-import java.util.HashMap
-
 import javafx.beans.property.BooleanProperty
 import javafx.beans.property.ObjectProperty
 import javafx.embed.swing.SwingFXUtils
@@ -15,6 +9,10 @@ import javafx.scene.control.Tooltip
 import javafx.scene.image.ImageView
 import org.apache.logging.log4j.LogManager
 import pl.margoj.editor.EditorApplication
+import java.awt.image.BufferedImage
+import java.io.IOException
+import java.util.HashMap
+import javax.imageio.ImageIO
 
 @Suppress("LoopToCallChain")
 object IconUtils

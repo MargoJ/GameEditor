@@ -89,8 +89,7 @@ class MargoJEditor private constructor()
 
         val resourceView = this.workspaceController.listResourceView
         resourceView.cellFactory = ResourceCellFactory(this)
-        resourceView.setOnKeyPressed {
-            event ->
+        resourceView.setOnKeyPressed { event ->
             val text = resourceView.selectionModel.selectedItem
             if (event.code == KeyCode.DELETE && text != null && text is ResourceText)
             {
@@ -322,10 +321,8 @@ class MargoJEditor private constructor()
         val tilesetsInBundle = bundle.getResourcesByCategory(MargoResource.Category.TILESETS).map(MargoResource::id)
         val missingTilesets = HashSet<String>()
 
-        map.forEach {
-            layer ->
-            layer.forEach {
-                fragment ->
+        map.forEach { layer ->
+            layer.forEach { fragment ->
 
                 if (fragment.tileset != null)
                 {

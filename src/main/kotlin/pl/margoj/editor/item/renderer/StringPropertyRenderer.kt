@@ -30,7 +30,7 @@ fun <T> addPropertyRenderer(textField: TextInputControl, changeCache: HashMap<No
         val oldValue = if (oldValueString == null) property.default else fromString(oldValueString)
         val newValue = fromString(textField.text)
 
-        if(newValue == null)
+        if (newValue == null)
         {
             textField.text = toString(property.default)
             return@addListener

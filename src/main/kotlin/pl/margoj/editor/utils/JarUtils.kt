@@ -30,7 +30,7 @@ object JarUtils
             folder = Paths.get(uri)
             logger.debug("Paths.get success")
         }
-        catch(e: FileSystemNotFoundException)
+        catch (e: FileSystemNotFoundException)
         {
             logger.trace("FileSystems.newFileSystem($uri).getPath($path)")
             folder = FileSystems.newFileSystem(uri, Collections.emptyMap<String, String>()).getPath(path)

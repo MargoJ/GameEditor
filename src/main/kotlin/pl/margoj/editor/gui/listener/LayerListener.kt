@@ -1,9 +1,5 @@
 package pl.margoj.editor.gui.listener
 
-import pl.margoj.editor.gui.utils.IconUtils
-import pl.margoj.editor.map.MapEditor
-import pl.margoj.mrf.map.MargoMap
-
 import javafx.event.ActionEvent
 import javafx.event.Event
 import javafx.event.EventHandler
@@ -13,6 +9,9 @@ import javafx.scene.control.ToggleGroup
 import javafx.scene.input.KeyCharacterCombination
 import javafx.scene.input.ScrollEvent
 import org.apache.logging.log4j.LogManager
+import pl.margoj.editor.gui.utils.IconUtils
+import pl.margoj.editor.map.MapEditor
+import pl.margoj.mrf.map.MargoMap
 
 class LayerListener(private val editor: MapEditor, vararg val buttons: RadioButton) : EventHandler<Event>
 {
