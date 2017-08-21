@@ -200,7 +200,7 @@ class MapEditor(editor: MargoJEditor) : AbstractEditor<MapEditor, MargoMap>(edit
 
         if (this.tilesetListSelected)
         {
-            this.selectTilesetsOnLeftMenu();
+            this.selectTilesetsOnLeftMenu()
         }
     }
 
@@ -360,9 +360,9 @@ class MapEditor(editor: MargoJEditor) : AbstractEditor<MapEditor, MargoMap>(edit
         val context = this.workspaceController.mapCanvas.graphicsContext2D
         val redraws = ArrayList<Point>()
 
-        for (x in 0..map.width - 1)
+        for (x in 0 until map.width)
         {
-            for (y in 0..map.height - 1)
+            for (y in 0 until map.height)
             {
                 if (!fragment.points!!.contains(Point(x, y)))
                 {
@@ -373,7 +373,7 @@ class MapEditor(editor: MargoJEditor) : AbstractEditor<MapEditor, MargoMap>(edit
 
                 if (!redrawNeeded)
                 {
-                    for (layer in 0..MargoMap.LAYERS - 1)
+                    for (layer in 0 until MargoMap.LAYERS)
                     {
                         if (this.mapFragmentBuffer!![x]!![y]!![layer] != null || this.mapFragmentBuffer!![x]!![y]!![layer] != fragments[x][y][layer])
                         {
@@ -397,7 +397,7 @@ class MapEditor(editor: MargoJEditor) : AbstractEditor<MapEditor, MargoMap>(edit
                     g.color = java.awt.Color.BLACK
                     g.fillRect(0, 0, 32, 32)
 
-                    for (layer in 0..MargoMap.LAYERS - 1)
+                    for (layer in 0 until MargoMap.LAYERS)
                     {
                         val mapFragment = fragments[x][y][layer]
                         this.mapFragmentBuffer!![x]!![y]!![layer] = mapFragment

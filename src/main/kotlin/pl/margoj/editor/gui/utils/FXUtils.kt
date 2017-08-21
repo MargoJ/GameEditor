@@ -29,7 +29,7 @@ object FXUtils
             return false
         }
         var dot = false
-        for (i in 0..str.length - 1)
+        for (i in 0 until str.length)
         {
             if (chars[i] == '-' && (i != 0 || !negative))
             {

@@ -1150,9 +1150,9 @@ class WorkspaceController : CustomController
             {
                 return MargoJEditor.INSTANCE.npcEditor.highlighter.computeHighlighting(area.text)
             }
-        };
+        }
 
-        executor.execute(task);
-        return task;
+        executor.execute(task)
+        return task
     }
 }

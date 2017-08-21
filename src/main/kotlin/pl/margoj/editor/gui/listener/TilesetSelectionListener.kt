@@ -33,65 +33,68 @@ class TilesetSelectionListener(private val canvas: Canvas, private val editor: M
 
     private fun doHandle(event: MouseEvent, inBounds: Boolean, x: Int, y: Int)
     {
-        if (event.eventType == MouseEvent.MOUSE_PRESSED)
+        when(event.eventType)
         {
-            if (!inBounds)
+            MouseEvent.MOUSE_PRESSED ->
             {
-                return
+                if (!inBounds)
+                {
+                    return
+                }
+
+                this.editor.redrawTileset()
+                this.startPoint = Point(x, y)
+                this.temporarySelection = RectangleSelection(x, y, 1, 1)
+
+                this.drawTemporarySelection()
             }
-
-            this.editor.redrawTileset()
-            this.startPoint = Point(x, y)
-            this.temporarySelection = RectangleSelection(x, y, 1, 1)
-
-            this.drawTemporarySelection()
-        }
-        else if (event.eventType == MouseEvent.MOUSE_DRAGGED)
-        {
-            val currentPoint = Point(x, y)
-
-            if (!inBounds || this.editor.selectedTileset!!.auto || currentPoint == this.lastPoint)
+            MouseEvent.MOUSE_DRAGGED ->
             {
-                return
+                val currentPoint = Point(x, y)
+
+                if (!inBounds || this.editor.selectedTileset!!.auto || currentPoint == this.lastPoint)
+                {
+                    return
+                }
+
+                this.lastPoint = currentPoint
+                this.temporarySelection = RectangleSelection(this.startPoint!!, this.lastPoint!!)
+
+                this.editor.redrawTileset()
+                this.drawTemporarySelection()
             }
-
-            this.lastPoint = currentPoint
-            this.temporarySelection = RectangleSelection(this.startPoint!!, this.lastPoint!!)
-
-            this.editor.redrawTileset()
-            this.drawTemporarySelection()
-        }
-        else if (event.eventType == MouseEvent.MOUSE_MOVED)
-        {
-            if (this.isDragging || !inBounds)
+            MouseEvent.MOUSE_MOVED ->
             {
-                return
-            }
+                if (this.isDragging || !inBounds)
+                {
+                    return
+                }
 
-            this.temporarySelection = RectangleSelection(x, y, 1, 1)
-            this.editor.redrawTileset()
-            this.drawTemporarySelection()
-        }
-        else if (event.eventType == MouseEvent.MOUSE_EXITED)
-        {
-            if (this.isDragging || this.temporarySelection == null)
-            {
-                return
+                this.temporarySelection = RectangleSelection(x, y, 1, 1)
+                this.editor.redrawTileset()
+                this.drawTemporarySelection()
             }
-            this.temporarySelection = null
-            this.editor.redrawTileset()
-        }
-        else if (event.eventType == MouseEvent.MOUSE_RELEASED)
-        {
-            if (this.temporarySelection == null)
+            MouseEvent.MOUSE_EXITED ->
             {
-                return
+                if (this.isDragging || this.temporarySelection == null)
+                {
+                    return
+                }
+                this.temporarySelection = null
+                this.editor.redrawTileset()
             }
-            this.lastPoint = null
-            this.startPoint = this.lastPoint
+            MouseEvent.MOUSE_RELEASED ->
+            {
+                if (this.temporarySelection == null)
+                {
+                    return
+                }
+                this.lastPoint = null
+                this.startPoint = this.lastPoint
 
-            this.editor.tilesetSelection = this.temporarySelection
-            this.editor.redrawTileset()
+                this.editor.tilesetSelection = this.temporarySelection
+                this.editor.redrawTileset()
+            }
         }
     }
 

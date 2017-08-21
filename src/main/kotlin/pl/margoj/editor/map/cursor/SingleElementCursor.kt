@@ -77,9 +77,9 @@ class SingleElementCursor : Cursor
         }
         else
         {
-            for (x in 0..context.onTilesetSelection.width - 1)
+            for (x in 0 until context.onTilesetSelection.width)
             {
-                for (y in 0..context.onTilesetSelection.height - 1)
+                for (y in 0 until context.onTilesetSelection.height)
                 {
                     val tilePoint = Point(context.onTilesetSelection.x + x, context.onTilesetSelection.y + y)
                     val mapPoint = Point(context.currentPoint.x + x, context.currentPoint.y + y)

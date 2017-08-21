@@ -4,7 +4,6 @@ import javafx.scene.Node
 import javafx.scene.control.TextField
 import pl.margoj.editor.gui.utils.FXUtils
 import pl.margoj.mrf.item.properties.DoubleProperty
-import pl.margoj.mrf.item.properties.IntProperty
 
 class DoublePropertyRenderer : ItemPropertyRenderer<Double, DoubleProperty, TextField>()
 {

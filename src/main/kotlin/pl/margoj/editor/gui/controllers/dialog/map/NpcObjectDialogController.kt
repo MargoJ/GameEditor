@@ -12,7 +12,6 @@ import pl.margoj.editor.map.actions.MapObjectUndoRedo
 import pl.margoj.mrf.MargoResource
 import pl.margoj.mrf.map.MargoMap
 import pl.margoj.mrf.map.Point
-import pl.margoj.mrf.map.objects.gateway.GatewayObject
 import pl.margoj.mrf.map.objects.npc.NpcMapObject
 import java.net.URL
 import java.util.ArrayList

@@ -11,8 +11,7 @@ class SynchronizedVariable<T>(val lock: Lock, val default: T)
     operator fun getValue(thisRef: Any?, property: KProperty<*>): T
     {
         this.lock.withLock {
-            @Suppress("UNCHECKED_CAST")
-            return this.realValue as T
+            return this.realValue
         }
     }
 

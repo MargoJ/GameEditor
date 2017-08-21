@@ -63,9 +63,9 @@ object IconUtils
 
         if (selected)
         {
-            for (x in 0..image.width - 1)
+            for (x in 0 until image.width)
             {
-                for (y in 0..image.height - 1)
+                for (y in 0 until image.height)
                 {
                     if (image.getRGB(x, y) == 0xFFFFFFFF.toInt())
                     {

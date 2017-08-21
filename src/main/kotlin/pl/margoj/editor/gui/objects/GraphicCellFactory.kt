@@ -6,7 +6,6 @@ import javafx.geometry.Pos
 import javafx.scene.Scene
 import javafx.scene.control.*
 import javafx.scene.image.ImageView
-import javafx.scene.layout.AnchorPane
 import javafx.scene.layout.HBox
 import javafx.scene.text.Text
 import javafx.stage.Stage

@@ -126,7 +126,7 @@ class MargoJEditor private constructor()
 
         for (category in MargoResource.Category.values())
         {
-            views.put(category, TreeSet<ResourceView>(Comparator.comparing(ResourceView::id)))
+            views.put(category, TreeSet(Comparator.comparing(ResourceView::id)))
         }
 
         for (view in resources)

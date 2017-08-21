@@ -73,12 +73,7 @@ class NewGraphicDialogContainer : CustomController
                 return@setOnAction
             }
 
-            val result = this.graphicsManagerController.fileChooser.showOpenDialog(scene.stage)
-
-            if (result == null)
-            {
-                return@setOnAction close()
-            }
+            val result = this.graphicsManagerController.fileChooser.showOpenDialog(scene.stage) ?: return@setOnAction close()
 
             val iis = ImageIO.createImageInputStream(result)
             val iterator = ImageIO.getImageReaders(iis)

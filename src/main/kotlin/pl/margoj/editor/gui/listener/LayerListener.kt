@@ -13,7 +13,6 @@ import javafx.scene.control.ToggleGroup
 import javafx.scene.input.KeyCharacterCombination
 import javafx.scene.input.ScrollEvent
 import org.apache.logging.log4j.LogManager
-import pl.margoj.editor.MargoJEditor
 
 class LayerListener(private val editor: MapEditor, vararg val buttons: RadioButton) : EventHandler<Event>
 {
@@ -31,23 +30,26 @@ class LayerListener(private val editor: MapEditor, vararg val buttons: RadioButt
             button.addEventHandler(ActionEvent.ACTION, this)
             IconUtils.removeDefaultClass(button, "radio-button")
 
-            if (i == MargoMap.COLLISION_LAYER)
+            when (i)
             {
-                scene.accelerators.put(KeyCharacterCombination("Q"), Runnable { button.fire() })
-                IconUtils.createBinding(button.graphicProperty(), button.selectedProperty(), "layer_c")
-                IconUtils.addTooltip(button, "Warstwa kolizji")
-            }
-            else if (i == MargoMap.OBJECT_LAYER)
-            {
-                scene.accelerators.put(KeyCharacterCombination("W"), Runnable { button.fire() })
-                IconUtils.createBinding(button.graphicProperty(), button.selectedProperty(), "layer_o")
-                IconUtils.addTooltip(button, "Warstwa obiektów")
-            }
-            else
-            {
-                scene.accelerators.put(KeyCharacterCombination(if (i == 9) "0" else Integer.toString(i + 1)), Runnable { button.fire() })
-                IconUtils.createBinding(button.graphicProperty(), button.selectedProperty(), "layer_" + (i + 1))
-                IconUtils.addTooltip(button, "Warstwa " + (i + 1))
+                MargoMap.COLLISION_LAYER ->
+                {
+                    scene.accelerators.put(KeyCharacterCombination("Q"), Runnable { button.fire() })
+                    IconUtils.createBinding(button.graphicProperty(), button.selectedProperty(), "layer_c")
+                    IconUtils.addTooltip(button, "Warstwa kolizji")
+                }
+                MargoMap.OBJECT_LAYER ->
+                {
+                    scene.accelerators.put(KeyCharacterCombination("W"), Runnable { button.fire() })
+                    IconUtils.createBinding(button.graphicProperty(), button.selectedProperty(), "layer_o")
+                    IconUtils.addTooltip(button, "Warstwa obiektów")
+                }
+                else ->
+                {
+                    scene.accelerators.put(KeyCharacterCombination(if (i == 9) "0" else Integer.toString(i + 1)), Runnable { button.fire() })
+                    IconUtils.createBinding(button.graphicProperty(), button.selectedProperty(), "layer_" + (i + 1))
+                    IconUtils.addTooltip(button, "Warstwa " + (i + 1))
+                }
             }
         }
 

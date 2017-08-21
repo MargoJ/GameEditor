@@ -57,51 +57,54 @@ class MapListener(private val editor: MapEditor) : EventHandler<MouseEvent>
 
     private fun handleNormalLayer(event: MouseEvent, x: Int, y: Int)
     {
-        if (event.eventType == MouseEvent.MOUSE_PRESSED)
+        when(event.eventType)
         {
-            this.lastPoint = Point(x, y)
-            this.startPoint = this.lastPoint
-
-            val context = this.createContext(this.startPoint!!, this.lastPoint!!)
-            val cursor = this.getCursor(context)
-            cursor.mouseClicked(context)
-            cursor.mouseDragged(context)
-            this.updateTemporarySelection(cursor.getSelection(context))
-        }
-        else if (event.eventType == MouseEvent.MOUSE_DRAGGED)
-        {
-            val currentPoint = Point(x, y)
-
-            if (currentPoint == this.lastPoint)
+            MouseEvent.MOUSE_PRESSED ->
             {
-                return
+                this.lastPoint = Point(x, y)
+                this.startPoint = this.lastPoint
+
+                val context = this.createContext(this.startPoint!!, this.lastPoint!!)
+                val cursor = this.getCursor(context)
+                cursor.mouseClicked(context)
+                cursor.mouseDragged(context)
+                this.updateTemporarySelection(cursor.getSelection(context))
             }
-
-            this.lastPoint = currentPoint
-
-            val context = this.createContext(this.startPoint!!, currentPoint)
-            val cursor = this.getCursor(context)
-            cursor.mouseDragged(context)
-
-            this.updateTemporarySelection(cursor.getSelection(context))
-        }
-        else if (event.eventType == MouseEvent.MOUSE_EXITED)
-        {
-            if (this.temporarySelection == null)
+            MouseEvent.MOUSE_DRAGGED ->
             {
-                return
-            }
+                val currentPoint = Point(x, y)
 
-            this.updateTemporarySelection(null)
-        }
-        else if (event.eventType == MouseEvent.MOUSE_RELEASED)
-        {
-            val context = this.createContext(Point(x, y), this.lastPoint!!)
-            val cursor = this.getCursor(context)
-            val modifications = cursor.apply(context)
-            cursor.redraw(context, Selection(modifications))
-            this.temporarySelection = cursor.getSelection(context)
-            this.drawTemporarySelection()
+                if (currentPoint == this.lastPoint)
+                {
+                    return
+                }
+
+                this.lastPoint = currentPoint
+
+                val context = this.createContext(this.startPoint!!, currentPoint)
+                val cursor = this.getCursor(context)
+                cursor.mouseDragged(context)
+
+                this.updateTemporarySelection(cursor.getSelection(context))
+            }
+            MouseEvent.MOUSE_EXITED ->
+            {
+                if (this.temporarySelection == null)
+                {
+                    return
+                }
+
+                this.updateTemporarySelection(null)
+            }
+            MouseEvent.MOUSE_RELEASED ->
+            {
+                val context = this.createContext(Point(x, y), this.lastPoint!!)
+                val cursor = this.getCursor(context)
+                val modifications = cursor.apply(context)
+                cursor.redraw(context, Selection(modifications))
+                this.temporarySelection = cursor.getSelection(context)
+                this.drawTemporarySelection()
+            }
         }
     }
 
@@ -114,7 +117,7 @@ class MapListener(private val editor: MapEditor) : EventHandler<MouseEvent>
         }
 
         val selectedName = this.editor.workspaceController.objectsList.selectionModel.selectedItem ?: return
-        val tool: MapObjectTool<*> = this.editor.mapObjectTools.filter { it.name == selectedName }.firstOrNull() ?: return
+        val tool: MapObjectTool<*> = this.editor.mapObjectTools.firstOrNull { it.name == selectedName } ?: return
 
         tool.handle(this.editor.currentMap!!, Point(x, y))
     }

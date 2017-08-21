@@ -17,13 +17,13 @@ class RectangleSelection(val x: Int, val y: Int, val width: Int, val height: Int
     {
         this.changedPoints.clear()
 
-        for (x in 0..this.width - 1)
+        for (x in 0 until this.width)
         {
             this.changedPoints.add(Point(this.x + x, this.y))
             this.changedPoints.add(Point(this.x + x, this.y + this.height - 1))
         }
 
-        for (y in 0..this.height - 1)
+        for (y in 0 until this.height)
         {
             this.changedPoints.add(Point(this.x, this.y + y))
             this.changedPoints.add(Point(this.x + this.width - 1, this.y + y))
@@ -43,9 +43,9 @@ private fun calcPoints(x: Int, y: Int, width: Int, height: Int): List<Point>
 {
     val out = ArrayList<Point>()
 
-    for (currentX in x..x + width - 1)
+    for (currentX in x until x + width)
     {
-        for (currentY in y..y + height - 1)
+        for (currentY in y until y + height)
         {
             out.add(Point(currentX, currentY))
         }

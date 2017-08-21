@@ -10,7 +10,6 @@ import org.fxmisc.richtext.CodeArea
 import pl.margoj.editor.MargoJEditor
 import pl.margoj.editor.editors.AbstractEditor
 import pl.margoj.editor.gui.utils.QuickAlert
-import pl.margoj.editor.utils.SynchronizedVariable
 import pl.margoj.mrf.MargoResource
 import pl.margoj.mrf.npc.NpcScript
 import pl.margoj.mrf.npc.serialization.NpcScriptDeserializer

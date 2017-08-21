@@ -32,12 +32,12 @@ open class Selection(points: Collection<Point>) : Iterable<Point>
             var highestX = Integer.MIN_VALUE
             var highestY = Integer.MIN_VALUE
 
-            for (point in points)
+            for ((x, y) in points)
             {
-                highestX = Math.max(point.x, highestX)
-                highestY = Math.max(point.y, highestY)
-                lowestX = Math.min(point.x, lowestX)
-                lowestY = Math.min(point.y, lowestY)
+                highestX = Math.max(x, highestX)
+                highestY = Math.max(y, highestY)
+                lowestX = Math.min(x, lowestX)
+                lowestY = Math.min(y, lowestY)
             }
 
             this.lowestX = lowestX
