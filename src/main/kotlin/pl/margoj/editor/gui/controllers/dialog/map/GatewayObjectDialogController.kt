@@ -1,9 +1,11 @@
 package pl.margoj.editor.gui.controllers.dialog.map
 
+import javafx.beans.binding.Bindings
 import javafx.event.EventHandler
 import javafx.fxml.FXML
 import javafx.scene.control.Button
 import javafx.scene.control.TextField
+import javafx.scene.control.ToggleButton
 import pl.margoj.editor.MargoJEditor
 import pl.margoj.editor.gui.api.CustomController
 import pl.margoj.editor.gui.api.CustomScene
@@ -27,6 +29,21 @@ class GatewayObjectDialogController : CustomController
 
     @FXML
     lateinit var fieldGatewayTargetName: TextField
+
+    @FXML
+    lateinit var toggleKeyNeeded: ToggleButton
+
+    @FXML
+    lateinit var fieldGatewayKeyName: TextField
+
+    @FXML
+    lateinit var toggleLevelRestriction: ToggleButton
+
+    @FXML
+    lateinit var fieldGatewayLevelMin: TextField
+
+    @FXML
+    lateinit var fieldGatewayLevelMax: TextField
 
     @FXML
     lateinit var buttonGatewayConfirm: Button
@@ -57,6 +74,13 @@ class GatewayObjectDialogController : CustomController
             this.fieldGatewayTargetX.text = current.target.x.toString()
             this.fieldGatewayTargetY.text = current.target.y.toString()
             this.fieldGatewayTargetName.text = current.targetMap
+
+            this.toggleKeyNeeded.isSelected = current.keyId != null
+            this.fieldGatewayKeyName.text = current.keyId ?: ""
+
+            this.toggleLevelRestriction.isSelected = current.levelRestriction.enabled
+            this.fieldGatewayLevelMin.text = if(current.levelRestriction.enabled) current.levelRestriction.minLevel.toString() else ""
+            this.fieldGatewayLevelMax.text = if(current.levelRestriction.enabled) current.levelRestriction.maxLevel.toString() else ""
         }
     }
 
@@ -64,6 +88,13 @@ class GatewayObjectDialogController : CustomController
     {
         FXUtils.makeNumberField(this.fieldGatewayTargetX, false)
         FXUtils.makeNumberField(this.fieldGatewayTargetY, false)
+        FXUtils.makeNumberField(this.fieldGatewayLevelMin, false, true)
+        FXUtils.makeNumberField(this.fieldGatewayLevelMax, false, true)
+
+        this.fieldGatewayLevelMin.disableProperty().bind(Bindings.`when`(this.toggleLevelRestriction.selectedProperty()).then(false).otherwise(true))
+        this.fieldGatewayLevelMax.disableProperty().bind(Bindings.`when`(this.toggleLevelRestriction.selectedProperty()).then(false).otherwise(true))
+        this.toggleKeyNeeded.textProperty().bind(Bindings.`when`(this.toggleKeyNeeded.selectedProperty()).then("Tak").otherwise("Nie"))
+        this.toggleLevelRestriction.textProperty().bind(Bindings.`when`(this.toggleLevelRestriction.selectedProperty()).then("Właczone").otherwise("Wyłączone"))
 
         this.buttonGatewayConfirm.onAction = EventHandler {
             val errors = ArrayList<String>()
@@ -88,7 +119,16 @@ class GatewayObjectDialogController : CustomController
             }
 
             val old = this.map.getObject(position)
-            val new = GatewayObject(this.position, Point(x, y), id)
+            val new = GatewayObject(
+                    position = this.position,
+                    target = Point(x, y),
+                    targetMap = id,
+                    levelRestriction = GatewayObject.LevelRestriction(
+                            enabled = this.toggleLevelRestriction.isSelected,
+                            minLevel = this.fieldGatewayLevelMin.text.toIntOrNull() ?: 0,
+                            maxLevel = this.fieldGatewayLevelMax.text.toIntOrNull() ?: 0
+                    ), keyId = if (this.toggleKeyNeeded.isSelected) this.fieldGatewayKeyName.text else null
+            )
 
             if (new != old)
             {

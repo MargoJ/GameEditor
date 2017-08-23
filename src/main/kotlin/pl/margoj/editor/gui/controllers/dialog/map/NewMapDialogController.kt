@@ -10,6 +10,7 @@ import pl.margoj.editor.gui.api.CustomScene
 import pl.margoj.editor.gui.utils.FXUtils
 import pl.margoj.mrf.MargoResource
 import pl.margoj.mrf.map.MargoMap
+import pl.margoj.mrf.map.serialization.MapSerializer
 import java.net.URL
 import java.util.ArrayList
 import java.util.ResourceBundle
@@ -96,7 +97,7 @@ class NewMapDialogController : CustomController
                 return@setOnAction
             }
 
-            val map = MargoMap(fieldMapId.text, fieldMapName.text, width, height)
+            val map = MargoMap(MapSerializer.CURRENT_VERSION.toByte(), fieldMapId.text, fieldMapName.text, width, height)
             val editor = MargoJEditor.INSTANCE.mapEditor
             editor.currentMap = map
             editor.saveFile = null
