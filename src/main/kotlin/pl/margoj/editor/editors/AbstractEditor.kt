@@ -39,6 +39,10 @@ abstract class AbstractEditor<E : AbstractEditor<E, T>, T : MargoResource>(val e
 
     open fun addUndoAction(action: UndoAction<E>)
     {
+        if (!action.isValid())
+        {
+            return
+        }
         logger.debug("New undo action $action")
         while (this.undoActions.size >= this.undoLimit)
         {

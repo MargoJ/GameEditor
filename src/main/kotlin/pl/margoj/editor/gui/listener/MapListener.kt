@@ -2,6 +2,7 @@ package pl.margoj.editor.gui.listener
 
 
 import javafx.event.EventHandler
+import javafx.scene.input.MouseButton
 import javafx.scene.input.MouseEvent
 import javafx.scene.paint.Color
 import pl.margoj.editor.gui.utils.FXUtils
@@ -45,7 +46,7 @@ class MapListener(private val editor: MapEditor) : EventHandler<MouseEvent>
             this.updateTemporarySelection(this.getCursor(context).getSelection(context))
         }
 
-        if (editor.currentLayer < MargoMap.LAYERS || editor.currentLayer == MargoMap.COLLISION_LAYER)
+        if (editor.currentLayer < MargoMap.LAYERS || editor.currentLayer == MargoMap.COLLISION_LAYER || editor.currentLayer == MargoMap.WATER_LAYER)
         {
             this.handleNormalLayer(event, x, y)
         }
@@ -64,7 +65,7 @@ class MapListener(private val editor: MapEditor) : EventHandler<MouseEvent>
                 this.lastPoint = Point(x, y)
                 this.startPoint = this.lastPoint
 
-                val context = this.createContext(this.startPoint!!, this.lastPoint!!)
+                val context = this.createContext(this.startPoint!!, this.lastPoint!!, event.button)
                 val cursor = this.getCursor(context)
                 cursor.mouseClicked(context)
                 cursor.mouseDragged(context)
@@ -122,7 +123,7 @@ class MapListener(private val editor: MapEditor) : EventHandler<MouseEvent>
         tool.handle(this.editor.currentMap!!, Point(x, y))
     }
 
-    private fun createContext(startPoint: Point, lastPoint: Point): CursorContext
+    private fun createContext(startPoint: Point, lastPoint: Point, button: MouseButton? = null): CursorContext
     {
         return CursorContext(
                 startPoint,
@@ -131,7 +132,8 @@ class MapListener(private val editor: MapEditor) : EventHandler<MouseEvent>
                 this.editor.selectedTileset!!,
                 this.editor.tilesetSelection!!,
                 this.editor.currentMap!!,
-                this.editor
+                this.editor,
+                button
         )
     }
 
@@ -139,6 +141,10 @@ class MapListener(private val editor: MapEditor) : EventHandler<MouseEvent>
     {
         var cursor = this.editor.cursor
         if (context.isCollisionLayerSelected && !cursor.supportsCollisions)
+        {
+            cursor = Cursor.DEFAULT
+        }
+        else if (context.isWaterLayerSelected && !cursor.supportsWater)
         {
             cursor = Cursor.DEFAULT
         }

@@ -37,9 +37,15 @@ class LayerListener(private val editor: MapEditor, vararg val buttons: RadioButt
                     IconUtils.createBinding(button.graphicProperty(), button.selectedProperty(), "layer_c")
                     IconUtils.addTooltip(button, "Warstwa kolizji")
                 }
-                MargoMap.OBJECT_LAYER ->
+                MargoMap.WATER_LAYER ->
                 {
                     scene.accelerators.put(KeyCharacterCombination("W"), Runnable { button.fire() })
+                    IconUtils.createBinding(button.graphicProperty(), button.selectedProperty(), "layer_w")
+                    IconUtils.addTooltip(button, "Warstwa wody")
+                }
+                MargoMap.OBJECT_LAYER ->
+                {
+                    scene.accelerators.put(KeyCharacterCombination("E"), Runnable { button.fire() })
                     IconUtils.createBinding(button.graphicProperty(), button.selectedProperty(), "layer_o")
                     IconUtils.addTooltip(button, "Warstwa obiektów")
                 }

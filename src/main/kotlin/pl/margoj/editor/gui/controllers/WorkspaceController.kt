@@ -7,6 +7,7 @@ import javafx.fxml.FXML
 import javafx.scene.canvas.Canvas
 import javafx.scene.control.*
 import javafx.scene.input.KeyCharacterCombination
+import javafx.scene.input.KeyCombination
 import javafx.scene.input.MouseEvent
 import javafx.scene.layout.AnchorPane
 import javafx.scene.layout.HBox
@@ -175,6 +176,9 @@ class WorkspaceController : CustomController
 
     @FXML
     lateinit var btnLayerCollisions: RadioButton
+
+    @FXML
+    lateinit var btnLayerWater: RadioButton
 
     @FXML
     lateinit var btnLayerObject: RadioButton
@@ -371,6 +375,7 @@ class WorkspaceController : CustomController
                 this.btnLayer9,
                 this.btnLayer10,
                 this.btnLayerCollisions,
+                this.btnLayerWater,
                 this.btnLayerObject
         ).autoRegister(scene.scene)
 
@@ -385,6 +390,8 @@ class WorkspaceController : CustomController
         accelerators[KeyCharacterCombination("A")] = Runnable { mapEditor.cursor = SingleElementCursor.INSTANCE }
         accelerators[KeyCharacterCombination("S")] = Runnable { mapEditor.cursor = ErasingCursor.INSTANCE }
         accelerators[KeyCharacterCombination("D")] = Runnable { mapEditor.cursor = FillingCursor.INSTANCE }
+
+        accelerators[KeyCharacterCombination("S", KeyCombination.CONTROL_DOWN, KeyCombination.ALT_DOWN)] = Runnable { this.btnResourceSaveToFile }
 
         // multiple accelerators
         this.scene.scene.onKeyPressed = EventHandler { keyEvent ->

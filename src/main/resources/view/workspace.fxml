@@ -350,6 +350,7 @@
                                                                                 <RadioButton fx:id="btnLayer9" mnemonicParsing="false" />
                                                                                 <RadioButton fx:id="btnLayer10" mnemonicParsing="false" />
                                                                                 <RadioButton fx:id="btnLayerCollisions" mnemonicParsing="false" />
+                                                                                <RadioButton fx:id="btnLayerWater" mnemonicParsing="false" />
                                                                                 <RadioButton fx:id="btnLayerObject" mnemonicParsing="false" />
                                                                                 <CheckBox fx:id="btnShowGrid" mnemonicParsing="false">
                                                                                     <HBox.margin>

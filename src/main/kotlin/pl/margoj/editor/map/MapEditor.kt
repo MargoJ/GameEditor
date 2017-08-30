@@ -5,6 +5,7 @@ import javafx.event.EventHandler
 import javafx.scene.canvas.Canvas
 import javafx.scene.image.Image
 import javafx.scene.paint.Color
+import javafx.scene.text.Font
 import javafx.stage.FileChooser
 import org.apache.logging.log4j.LogManager
 import pl.margoj.editor.MargoJEditor
@@ -33,6 +34,18 @@ import java.util.Collections
 import java.util.HashMap
 
 private val COLLISION = javafx.scene.paint.Color(1.0, 1.0, 1.0, 0.8)
+private val WATER = javafx.scene.paint.Color(0.2, 0.3, 1.0, 0.8)
+private val WATER_TEXT = arrayOf(
+        javafx.scene.paint.Color(0.0, 0.0, 0.0, 1.0),
+        javafx.scene.paint.Color(0.1, 0.0, 0.0, 1.0),
+        javafx.scene.paint.Color(0.2, 0.0, 0.0, 1.0),
+        javafx.scene.paint.Color(0.3, 0.0, 0.0, 1.0),
+        javafx.scene.paint.Color(0.4, 0.0, 0.0, 1.0),
+        javafx.scene.paint.Color(0.5, 0.0, 0.0, 1.0),
+        javafx.scene.paint.Color(0.6, 0.0, 0.0, 1.0),
+        javafx.scene.paint.Color(0.7, 0.0, 0.0, 1.0)
+)
+
 
 class MapEditor(editor: MargoJEditor) : AbstractEditor<MapEditor, MargoMap>(editor, FileChooser.ExtensionFilter("Mapa formatu MargoJ (*.mjm)", "*.mjm"), ".mjm")
 {
@@ -93,7 +106,8 @@ class MapEditor(editor: MargoJEditor) : AbstractEditor<MapEditor, MargoMap>(edit
             logger.trace("currentLayer = $currentLayer")
 
             val redrawObjects = this.currentLayer == MargoMap.COLLISION_LAYER || value == MargoMap.COLLISION_LAYER ||
-                    this.currentLayer == MargoMap.OBJECT_LAYER || value == MargoMap.OBJECT_LAYER
+                    this.currentLayer == MargoMap.OBJECT_LAYER || value == MargoMap.OBJECT_LAYER ||
+                    this.currentLayer == MargoMap.WATER_LAYER || value == MargoMap.WATER_LAYER
 
 
             if (value == MargoMap.OBJECT_LAYER)
@@ -315,6 +329,18 @@ class MapEditor(editor: MargoJEditor) : AbstractEditor<MapEditor, MargoMap>(edit
                 {
                     g.fill = COLLISION
                     g.fillRect(point.x * 32.0 + 3, point.y * 32.0 + 3, 26.0, 26.0)
+                }
+            }
+            else if (this.currentLayer == MargoMap.WATER_LAYER)
+            {
+                val water = this.currentMap!!.getWaterLevelAt(point)
+                if (water != 0)
+                {
+                    g.fill = WATER
+                    g.fillRect(point.x * 32.0 + 3, point.y * 32.0 + 3, 26.0, 26.0)
+                    g.font = Font.font(15.0)
+                    g.fill = WATER_TEXT[water - 1]
+                    g.fillText(water.toString(), point.x * 32.0 + 12, point.y * 32.0 + 20)
                 }
             }
 
