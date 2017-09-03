@@ -66,12 +66,14 @@ class NpcEditor(editor: MargoJEditor) : AbstractEditor<NpcEditor, NpcScript>(edi
         logger.trace("init")
 
         val KEYWORDS = arrayOf(
-                "nazwa", "grafika", "poziom", "npc", "dialog", "opcja", "ustaw", "wykonaj",
+                "npc",
+                "nazwa", "grafika", "poziom", "potwór", "typ", "płeć",
+                "dialog", "opcja", "ustaw", "wykonaj",
                 "i", "lub", "oraz", "nie",
                 "prawda", "fałsz",
                 "jeżeli", "przeciwnie", "dopóki", "każdy", "w",
                 "dodaj", "odejmij", "pomnóż", "podziel",
-                "posiada", "dodaj", "zabierz", "dodaj", "zabierz", "złoto"
+                "posiada", "dodaj", "zabierz", "dodaj", "zabierz", "złoto", "xp"
         )
         val PROPERTY_PATTERN = "[\\p{L}0-9_.]+"
 

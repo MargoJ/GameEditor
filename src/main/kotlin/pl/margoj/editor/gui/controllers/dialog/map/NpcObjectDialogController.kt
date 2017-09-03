@@ -32,6 +32,9 @@ class NpcObjectDialogController : CustomController
     lateinit var fieldNpcLevel: TextField
 
     @FXML
+    lateinit var fieldNpcGroup: TextField
+
+    @FXML
     lateinit var buttonNpcConirm: Button
 
     lateinit var scene: CustomScene<*>
@@ -61,12 +64,14 @@ class NpcObjectDialogController : CustomController
             this.fieldNpcGraphics.text = current.graphics ?: ""
             this.fieldNpcName.text = current.name ?: ""
             this.fieldNpcLevel.text = current.level?.toString() ?: ""
+            this.fieldNpcGroup.text = current.group?.toString() ?: ""
         }
     }
 
     override fun initialize(location: URL?, resources: ResourceBundle?)
     {
         FXUtils.makeNumberField(this.fieldNpcLevel, false, true)
+        FXUtils.makeNumberField(this.fieldNpcGroup, false, true)
 
         this.buttonNpcConirm.onAction = EventHandler {
             val errors = ArrayList<String>()
@@ -74,6 +79,7 @@ class NpcObjectDialogController : CustomController
             val graphics = if (this.fieldNpcGraphics.text.isNotEmpty()) this.fieldNpcGraphics.text else null
             val name = if (this.fieldNpcName.text.isNotEmpty()) this.fieldNpcName.text else null
             val level = if (this.fieldNpcLevel.text.isNotEmpty()) this.fieldNpcLevel.text.toInt() else null
+            val group = if (this.fieldNpcGroup.text.isNotEmpty()) this.fieldNpcGroup.text.toInt() else null
 
             if (id.isEmpty() || !MargoResource.ID_PATTERN.matcher(id).matches())
             {
@@ -87,7 +93,7 @@ class NpcObjectDialogController : CustomController
             }
 
             val old = this.map.getObject(position)
-            val new = NpcMapObject(this.position, id, graphics, name, level)
+            val new = NpcMapObject(this.position, id, graphics, name, level, group)
 
             if (new != old)
             {
