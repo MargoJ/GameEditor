@@ -73,7 +73,9 @@ class NpcEditor(editor: MargoJEditor) : AbstractEditor<NpcEditor, NpcScript>(edi
                 "prawda", "fałsz",
                 "jeżeli", "przeciwnie", "dopóki", "każdy", "w",
                 "dodaj", "odejmij", "pomnóż", "podziel",
-                "posiada", "dodaj", "zabierz", "dodaj", "zabierz", "złoto", "xp"
+                "posiada", "dodaj", "zabierz", "dodaj", "zabierz", "złoto", "xp",
+                "profesja", "sa", "hp", "atak",
+                "siła", "str", "zręczność", "agi", "intelekt", "int"
         )
         val PROPERTY_PATTERN = "[\\p{L}0-9_.]+"
 

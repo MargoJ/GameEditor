@@ -16,6 +16,7 @@ import pl.margoj.mrf.map.objects.npc.NpcMapObject
 import java.net.URL
 import java.util.ArrayList
 import java.util.ResourceBundle
+import java.util.regex.Pattern
 
 class NpcObjectDialogController : CustomController
 {
@@ -33,6 +34,9 @@ class NpcObjectDialogController : CustomController
 
     @FXML
     lateinit var fieldNpcGroup: TextField
+
+    @FXML
+    lateinit var fieldNpcSpawn: TextField
 
     @FXML
     lateinit var buttonNpcConirm: Button
@@ -65,6 +69,7 @@ class NpcObjectDialogController : CustomController
             this.fieldNpcName.text = current.name ?: ""
             this.fieldNpcLevel.text = current.level?.toString() ?: ""
             this.fieldNpcGroup.text = current.group?.toString() ?: ""
+            this.fieldNpcSpawn.text = current.spawnTime ?: ""
         }
     }
 
@@ -80,10 +85,16 @@ class NpcObjectDialogController : CustomController
             val name = if (this.fieldNpcName.text.isNotEmpty()) this.fieldNpcName.text else null
             val level = if (this.fieldNpcLevel.text.isNotEmpty()) this.fieldNpcLevel.text.toInt() else null
             val group = if (this.fieldNpcGroup.text.isNotEmpty()) this.fieldNpcGroup.text.toInt() else null
+            val spawn = if(this.fieldNpcSpawn.text.isNotEmpty()) this.fieldNpcSpawn.text else null
 
             if (id.isEmpty() || !MargoResource.ID_PATTERN.matcher(id).matches())
             {
                 errors.add("ID npc nie jest poprawne")
+            }
+
+            if(spawn != null && !TIME_REGEXP.matcher(spawn).matches())
+            {
+                errors.add("Niepoprawny format spawnu")
             }
 
             if (errors.size > 0)
@@ -93,7 +104,7 @@ class NpcObjectDialogController : CustomController
             }
 
             val old = this.map.getObject(position)
-            val new = NpcMapObject(this.position, id, graphics, name, level, group)
+            val new = NpcMapObject(this.position, id, graphics, name, level, group, spawn)
 
             if (new != old)
             {
@@ -112,5 +123,10 @@ class NpcObjectDialogController : CustomController
 
             this.scene.stage.close()
         }
+    }
+
+    private companion object
+    {
+        val TIME_REGEXP = Pattern.compile("(\\d+[smhd]?)*")
     }
 }
