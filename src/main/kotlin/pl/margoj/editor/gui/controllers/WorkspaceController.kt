@@ -33,10 +33,7 @@ import pl.margoj.editor.gui.utils.QuickAlert
 import pl.margoj.editor.map.cursor.ErasingCursor
 import pl.margoj.editor.map.cursor.FillingCursor
 import pl.margoj.editor.map.cursor.SingleElementCursor
-import pl.margoj.editor.map.objects.GatewayObjectTool
-import pl.margoj.editor.map.objects.MapSpawnObjectTool
-import pl.margoj.editor.map.objects.NpcObjectTool
-import pl.margoj.editor.map.objects.RemoveObjectTool
+import pl.margoj.editor.map.objects.*
 import pl.margoj.editor.utils.FileUtils
 import pl.margoj.mrf.MargoResource
 import pl.margoj.mrf.bundle.local.MargoMRFResourceBundle
@@ -727,6 +724,7 @@ class WorkspaceController : CustomController
         mapEditor.mapObjectTools.add(GatewayObjectTool())
         mapEditor.mapObjectTools.add(MapSpawnObjectTool())
         mapEditor.mapObjectTools.add(NpcObjectTool())
+        mapEditor.mapObjectTools.add(TextObjectTool())
         mapEditor.mapObjectTools.add(RemoveObjectTool())
 
         // =========
