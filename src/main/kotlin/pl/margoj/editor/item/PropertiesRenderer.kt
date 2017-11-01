@@ -32,6 +32,11 @@ class PropertiesRenderer(val renderers: Collection<ItemPropertyRenderer<*, *, *>
 
         for (property in TreeSet<ItemProperty<*>>(ItemProperty.properties))
         {
+            if(!property.editable)
+            {
+                continue
+            }
+
             logger.debug("=========== Creating new property")
             logger.debug("property = $property")
             val availableRenderer = this.getRendererOf(property)
