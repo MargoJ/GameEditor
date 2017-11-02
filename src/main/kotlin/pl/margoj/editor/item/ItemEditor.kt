@@ -93,6 +93,11 @@ class ItemEditor(editor: MargoJEditor) : AbstractEditor<ItemEditor, MargoItem>(e
         @Suppress("UNCHECKED_CAST")
         for (property in ItemProperty.properties)
         {
+            if(!property.editable)
+            {
+                continue
+            }
+
             val renderer = this.propertiesRenderer.getRendererOf(property)!! as ItemPropertyRenderer<Any, ItemProperty<Any>, Node>
             val node = this.propertiesRenderer.actualNodes[property]!!
 
