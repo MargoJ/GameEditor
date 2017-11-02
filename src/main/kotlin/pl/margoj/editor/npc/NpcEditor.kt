@@ -68,14 +68,15 @@ class NpcEditor(editor: MargoJEditor) : AbstractEditor<NpcEditor, NpcScript>(edi
         val KEYWORDS = arrayOf(
                 "npc",
                 "nazwa", "grafika", "poziom", "potwór", "typ", "płeć",
-                "dialog", "opcja", "ustaw", "wykonaj",
+                "dialog", "opcja", "ustaw", "wykonaj", "zamknij",
                 "i", "lub", "oraz", "nie",
                 "prawda", "fałsz",
                 "jeżeli", "przeciwnie", "dopóki", "każdy", "w",
                 "dodaj", "odejmij", "pomnóż", "podziel",
                 "posiada", "dodaj", "zabierz", "dodaj", "zabierz", "złoto", "xp",
                 "profesja", "sa", "hp", "atak",
-                "siła", "str", "zręczność", "agi", "intelekt", "int"
+                "siła", "str", "zręczność", "agi", "intelekt", "int",
+                "rozpocznij", "walkę", "teleportuj", "na", "koordynaty", "mape", "do", "zabij"
         )
         val PROPERTY_PATTERN = "[\\p{L}0-9_.]+"
 
