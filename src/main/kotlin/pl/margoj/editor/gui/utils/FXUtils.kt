@@ -31,9 +31,12 @@ object FXUtils
         var dot = false
         for (i in 0 until str.length)
         {
-            if (chars[i] == '-' && (i != 0 || !negative))
+            if (chars[i] == '-')
             {
-                return false
+                if (i != 0 || !negative)
+                {
+                    return false
+                }
             }
             else if (chars[i] == '.')
             {

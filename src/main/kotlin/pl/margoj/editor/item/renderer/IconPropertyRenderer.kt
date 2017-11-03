@@ -13,7 +13,7 @@ import pl.margoj.editor.gui.utils.QuickAlert
 import pl.margoj.editor.item.PropertyChangeUndoRedo
 import pl.margoj.mrf.MRFIcon
 import pl.margoj.mrf.MRFIconFormat
-import pl.margoj.mrf.item.properties.IconProperty
+import pl.margoj.mrf.item.properties.special.IconProperty
 import java.io.ByteArrayInputStream
 import java.io.FileInputStream
 import java.util.WeakHashMap

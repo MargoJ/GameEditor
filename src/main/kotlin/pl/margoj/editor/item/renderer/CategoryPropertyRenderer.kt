@@ -1,7 +1,7 @@
 package pl.margoj.editor.item.renderer
 
 import pl.margoj.mrf.item.ItemCategory
-import pl.margoj.mrf.item.properties.CategoryProperty
+import pl.margoj.mrf.item.properties.special.CategoryProperty
 
 class CategoryPropertyRenderer : ListPropertyRenderer<ItemCategory, CategoryProperty>()
 {

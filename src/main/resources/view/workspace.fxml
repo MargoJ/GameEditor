@@ -532,6 +532,11 @@
                                                                   <Font name="System Bold" size="12.0" />
                                                                </font>
                                                             </Button>
+                                                      <Button fx:id="buttonCloneItem" mnemonicParsing="false" prefWidth="170.0" text="Klonuj przedmiot">
+                                                         <HBox.margin>
+                                                            <Insets right="5.0" />
+                                                         </HBox.margin>
+                                                      </Button>
                                                             <Button fx:id="buttonQuickSaveItem" mnemonicParsing="false" prefWidth="300.0" text="Zapisz" />
                                                          </children>
                                                          <VBox.margin>
@@ -646,7 +651,7 @@
                                                             <Insets right="5.0" />
                                                          </HBox.margin>
                                                       </Button>
-                                                      <Button disable="true" fx:id="buttonNpcGraphics" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Menedżer Grafik">
+                                                      <Button fx:id="buttonNpcGraphics" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Menedżer Grafik">
                                                          <HBox.margin>
                                                             <Insets right="5.0" />
                                                          </HBox.margin>

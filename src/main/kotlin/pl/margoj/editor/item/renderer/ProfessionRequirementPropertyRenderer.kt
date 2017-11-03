@@ -5,7 +5,7 @@ import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
 import pl.margoj.editor.MargoJEditor
 import pl.margoj.editor.item.PropertyChangeUndoRedo
-import pl.margoj.mrf.item.properties.ProfessionRequirementProperty
+import pl.margoj.mrf.item.properties.special.ProfessionRequirementProperty
 
 class ProfessionRequirementPropertyRenderer
     : ItemPropertyRenderer<ProfessionRequirementProperty.ProfessionRequirement, ProfessionRequirementProperty, ProfessionRequirementPropertyRenderer.RequirementNode>()

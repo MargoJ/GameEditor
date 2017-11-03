@@ -1,7 +1,7 @@
 package pl.margoj.editor.item.renderer
 
 import pl.margoj.mrf.item.ItemRarity
-import pl.margoj.mrf.item.properties.RarityProperty
+import pl.margoj.mrf.item.properties.special.RarityProperty
 
 class RarityPropertyRenderer : ListPropertyRenderer<ItemRarity, RarityProperty>()
 {

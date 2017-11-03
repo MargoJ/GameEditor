@@ -253,6 +253,9 @@ class WorkspaceController : CustomController
     lateinit var buttonQuickSaveItem: Button
 
     @FXML
+    lateinit var buttonCloneItem: Button
+
+    @FXML
     lateinit var buttonDeleteItem: Button
 
     @FXML
@@ -837,7 +840,7 @@ class WorkspaceController : CustomController
                 val dialog = FXUtils.loadDialog("item/new", "Tworzenie nowego przedmiotu w zestawie zasobów", this.scene.stage)
                 dialog.setOnHiding {
                     val newItem = itemEditor.currentItem
-                    if (newItem == null || oldItem === newItem)
+                    if (newItem === null || oldItem === newItem)
                     {
                         QuickAlert
                                 .create()
@@ -855,6 +858,46 @@ class WorkspaceController : CustomController
             }
         }
 
+        this.buttonCloneItem.onAction = EventHandler {
+            if (this.isItemEditorSelected && itemEditor.askForSaveIfNecessary())
+            {
+                val oldItem = itemEditor.currentItem
+                if(oldItem == null)
+                {
+                    QuickAlert
+                            .create()
+                            .warning()
+                            .header("Operacja przerwana!")
+                            .content("Brak przedmiotu do sklonowania")
+                            .showAndWait()
+                    return@EventHandler
+                }
+
+                val dialog = FXUtils.loadDialog("item/new", "Klonowanie przedmiotu", this.scene.stage)
+
+                dialog.setOnHiding {
+                    val newItem = itemEditor.currentItem
+                    if (newItem === null || oldItem === newItem)
+                    {
+                        QuickAlert
+                                .create()
+                                .warning()
+                                .header("Operacja przerwana!")
+                                .content("Przedmiot nie zostal utworzony")
+                                .showAndWait()
+                        return@setOnHiding
+                    }
+
+                    for ((property, value) in oldItem.properties)
+                    {
+                        newItem.properties.put(property, value)
+                    }
+
+                    itemEditor.currentItem = newItem
+                }
+
+            }
+        }
 
         this.buttonDeleteItem.onAction = EventHandler {
             val item = itemEditor.currentItem

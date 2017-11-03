@@ -1,9 +1,12 @@
 package pl.margoj.editor.item
 
+import javafx.geometry.Pos
 import javafx.scene.Node
 import javafx.scene.control.Label
 import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
+import javafx.scene.text.Font
+import javafx.scene.text.FontWeight
 import org.apache.commons.lang3.StringUtils
 import org.apache.logging.log4j.LogManager
 import pl.margoj.editor.gui.controllers.ItemPropertyController
@@ -16,7 +19,7 @@ class PropertiesRenderer(val renderers: Collection<ItemPropertyRenderer<*, *, *>
 {
     private val logger = LogManager.getLogger(PropertiesRenderer::class.java)
 
-    lateinit var nodes: Collection<Node>
+    lateinit var nodes: Map<String, Collection<Node>>
         private set
 
     lateinit var actualNodes: Map<ItemProperty<*>, Node>
@@ -27,12 +30,12 @@ class PropertiesRenderer(val renderers: Collection<ItemPropertyRenderer<*, *, *>
         logger.trace("calculate()")
         logger.debug("available renderers: ${this.renderers}")
 
-        val nodes = mutableListOf<Node>()
+        val nodes = LinkedHashMap<String, MutableList<Node>>()
         val actualNodes = hashMapOf<ItemProperty<*>, Node>()
 
         for (property in TreeSet<ItemProperty<*>>(ItemProperty.properties))
         {
-            if(!property.editable)
+            if (!property.editable)
             {
                 continue
             }
@@ -54,7 +57,7 @@ class PropertiesRenderer(val renderers: Collection<ItemPropertyRenderer<*, *, *>
                 actualNodes.put(property, actualNode)
                 controller.propPaneValueHolder.children.add(actualNode)
 
-                nodes.add(loader.node)
+                nodes.computeIfAbsent(property.category ?: "Inne", { ArrayList() }).add(loader.node)
             }
         }
 
@@ -74,7 +77,8 @@ class PropertiesRenderer(val renderers: Collection<ItemPropertyRenderer<*, *, *>
                 CategoryPropertyRenderer(),
                 RarityPropertyRenderer(),
                 IconPropertyRenderer(),
-                ProfessionRequirementPropertyRenderer()
+                ProfessionRequirementPropertyRenderer(),
+                CooldownPropertyRenderer()
         )
     }
 
@@ -83,14 +87,27 @@ class PropertiesRenderer(val renderers: Collection<ItemPropertyRenderer<*, *, *>
         logger.trace("render(container = $container, search = $search)")
         val items = arrayListOf<Node>()
 
-        for (child in this.nodes)
+        for ((category, children) in this.nodes)
         {
-            child as HBox
-            val text = (child.children[0] as Label).text
+            val title = Label(category)
+            title.setMaxSize(Double.MAX_VALUE, 30.0)
+            title.setPrefSize(Double.MAX_VALUE, 30.0)
+            title.setMinSize(0.0, 30.0)
+            title.style += "; -fx-border-color: black; -fx-border-style: hidden hidden solid hidden; -fx-background-color: #D3D3D3;"
+            title.alignment = Pos.CENTER
+            title.font = Font.font("System", FontWeight.BOLD, 15.0)
 
-            if (StringUtils.containsIgnoreCase(text, search))
+            items.add(title)
+
+            for (child in children)
             {
-                items.add(child)
+                child as HBox
+                val text = (child.children[0] as Label).text
+
+                if (StringUtils.containsIgnoreCase(text, search))
+                {
+                    items.add(child)
+                }
             }
         }
 
