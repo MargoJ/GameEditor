@@ -74,7 +74,7 @@ class NpcEditor(editor: MargoJEditor) : AbstractEditor<NpcEditor, NpcScript>(edi
                 "jeżeli", "przeciwnie", "dopóki", "każdy", "w",
                 "dodaj", "odejmij", "pomnóż", "podziel",
                 "posiada", "dodaj", "zabierz", "dodaj", "zabierz", "złoto", "xp",
-                "profesja", "sa", "hp", "atak",
+                "profesja", "sa", "hp", "atak", "pancerz", "blok", "unik",
                 "siła", "str", "zręczność", "agi", "intelekt", "int",
                 "rozpocznij", "walkę", "teleportuj", "na", "koordynaty", "mape", "do", "zabij"
         )
