@@ -26,6 +26,7 @@ import pl.margoj.editor.gui.api.CustomScene
 import pl.margoj.editor.gui.listener.LayerListener
 import pl.margoj.editor.gui.listener.MapListener
 import pl.margoj.editor.gui.listener.TilesetSelectionListener
+import pl.margoj.editor.gui.objects.GraphicCellFactory
 import pl.margoj.editor.gui.objects.MapCursorBox
 import pl.margoj.editor.gui.utils.FXUtils
 import pl.margoj.editor.gui.utils.IconUtils
@@ -62,6 +63,9 @@ class WorkspaceController : CustomController
 
     @FXML
     lateinit var tabNpcEditor: Tab
+
+    @FXML
+    lateinit var tabGraphicsEditor: Tab
 
     @FXML
     lateinit var btnResourceNew: Button
@@ -304,9 +308,6 @@ class WorkspaceController : CustomController
     lateinit var buttonAddNewNpc: Button
 
     @FXML
-    lateinit var buttonNpcGraphics: Button
-
-    @FXML
     lateinit var buttonDeleteNpc: Button
 
     @FXML
@@ -314,6 +315,15 @@ class WorkspaceController : CustomController
 
     @FXML
     lateinit var npcEditorHolder: AnchorPane
+
+    @FXML
+    lateinit var listGraphics: ListView<Text>
+
+    @FXML
+    lateinit var fieldSearchGraphics: TextField
+
+    @FXML
+    lateinit var buttonAddGraphic: Button
 
     @FXML
     lateinit var titledPaneNpcEditorTitle: TitledPane
@@ -349,6 +359,8 @@ class WorkspaceController : CustomController
     val isItemEditorSelected: Boolean get() = this.tabPane.selectionModel?.selectedItem == this.tabItemEditor
 
     val isNpcEditorSelected: Boolean get() = this.tabPane.selectionModel?.selectedItem == this.tabNpcEditor
+
+    val isGraphicEditorSelected: Boolean get() = this.tabPane.selectionModel?.selectedItem == this.tabGraphicsEditor
 
     val fileChooser = FileChooser()
 
@@ -473,9 +485,11 @@ class WorkspaceController : CustomController
         editor.addResourceDisableListener { this.menuNpcSaveToBundle.isDisable = it }
         editor.addResourceDisableListener { this.buttonDeleteNpc.isDisable = it }
         editor.addResourceDisableListener { this.buttonAddNewNpc.isDisable = it }
-        editor.addResourceDisableListener { this.buttonNpcGraphics.isDisable = it }
         editor.addResourceDisableListener { this.buttonQuickSaveNpc.isDisable = it }
         editor.addResourceDisableListener { this.fieldSearchNpc.isDisable = it }
+        editor.addResourceDisableListener { this.buttonAddGraphic.isDisable = it }
+        editor.addResourceDisableListener { this.fieldSearchGraphics.isDisable = it }
+        editor.addResourceDisableListener { this.listGraphics.isDisable = it }
 
         btnResourceNew.onAction = EventHandler {
             editor.currentResourceBundle = MountedResourceBundle(File(FileUtils.MOUNT_DIRECTORY, System.currentTimeMillis().toString()))
@@ -862,7 +876,7 @@ class WorkspaceController : CustomController
             if (this.isItemEditorSelected && itemEditor.askForSaveIfNecessary())
             {
                 val oldItem = itemEditor.currentItem
-                if(oldItem == null)
+                if (oldItem == null)
                 {
                     QuickAlert
                             .create()
@@ -1139,10 +1153,6 @@ class WorkspaceController : CustomController
             }
         }
 
-        this.buttonNpcGraphics.onAction = EventHandler {
-            FXUtils.loadDialog("graphics/graphics", "Menadżer grafik", this.scene.stage)
-        }
-
         this.buttonDeleteNpc.onAction = EventHandler {
             val script = npcEditor.currentScript
             val view = if (script == null) null else editor.currentResourceBundle?.getResource(MargoResource.Category.NPC_SCRIPTS, script.id)
@@ -1182,6 +1192,21 @@ class WorkspaceController : CustomController
         }
 
         this.fieldSearchNpc.textProperty().addListener { _, _, _ -> npcEditor.updateNpcsView() }
+
+        // ===================
+        // GRAPHIC EDITOR
+        // ===================
+        val graphicEditor = editor.graphicEditor
+
+        graphicEditor.updateGraphicsView()
+
+        this.listGraphics.cellFactory = GraphicCellFactory(graphicEditor)
+
+        this.fieldSearchGraphics.textProperty().addListener { _, _, _ -> graphicEditor.updateGraphicsViewElement() }
+
+        this.buttonAddGraphic.setOnAction {
+            FXUtils.loadDialog("graphics/new", "Dodaj nową grafike", this.scene.stage, graphicEditor)
+        }
     }
 
     private val executor: ExecutorService = Executors.newSingleThreadExecutor {

@@ -1,13 +1,15 @@
 package pl.margoj.editor.gui.controllers.dialog
 
+import javafx.collections.FXCollections
 import javafx.fxml.FXML
 import javafx.scene.control.Button
+import javafx.scene.control.ComboBox
 import javafx.scene.control.TextField
 import org.apache.commons.io.IOUtils
 import pl.margoj.editor.MargoJEditor
+import pl.margoj.editor.graphic.GraphicEditor
 import pl.margoj.editor.gui.api.CustomController
 import pl.margoj.editor.gui.api.CustomScene
-import pl.margoj.editor.gui.controllers.GraphicsManagerController
 import pl.margoj.editor.gui.utils.FXUtils
 import pl.margoj.editor.gui.utils.QuickAlert
 import pl.margoj.mrf.MRFIcon
@@ -24,10 +26,13 @@ import javax.imageio.ImageIO
 class NewGraphicDialogContainer : CustomController
 {
     private lateinit var scene: CustomScene<*>
-    private lateinit var graphicsManagerController: GraphicsManagerController
+    private lateinit var editor: GraphicEditor
 
     @FXML
     lateinit var fieldGraphicId: TextField
+
+    @FXML
+    lateinit var choiceGraphicCategory: ComboBox<String>
 
     @FXML
     lateinit var buttonGraphicConfirm: Button
@@ -39,11 +44,14 @@ class NewGraphicDialogContainer : CustomController
 
     override fun loadData(data: Any)
     {
-        this.graphicsManagerController = data as GraphicsManagerController
+        this.editor = data as GraphicEditor
     }
 
     override fun initialize(location: URL, resources: ResourceBundle?)
     {
+        this.choiceGraphicCategory.items = FXCollections.observableList(GraphicResource.GraphicCategory.values().map { it.displayName })
+        this.choiceGraphicCategory.selectionModel.select(0)
+
         buttonGraphicConfirm.setOnAction {
             val errors = ArrayList<String>()
 
@@ -73,7 +81,7 @@ class NewGraphicDialogContainer : CustomController
                 return@setOnAction
             }
 
-            val result = this.graphicsManagerController.fileChooser.showOpenDialog(scene.stage) ?: return@setOnAction close()
+            val result = this.editor.fileChooser.showOpenDialog(scene.stage) ?: return@setOnAction close()
 
             val iis = ImageIO.createImageInputStream(result)
             val iterator = ImageIO.getImageReaders(iis)
@@ -92,14 +100,18 @@ class NewGraphicDialogContainer : CustomController
                 fileBytes = IOUtils.toByteArray(it)
             }
 
-            val icon = MRFIcon(fileBytes!!, format, image)
-            val resource = GraphicResource(this.fieldGraphicId.text, icon)
 
-            val serialized = GraphicsManagerController.graphicSerializer.serialize(resource)
+            val icon = MRFIcon(fileBytes!!, format, image)
+
+            val category = GraphicResource.GraphicCategory.values().firstOrNull { this.choiceGraphicCategory.selectionModel.selectedItem == it.displayName }!!
+
+            val resource = GraphicResource("${category.id}_${this.fieldGraphicId.text}_${format.format}", "${this.fieldGraphicId.text}.${format.extension}", icon, category)
+
+            val serialized = GraphicEditor.graphicSerializer.serialize(resource)
             val editor = MargoJEditor.INSTANCE
             editor.currentResourceBundle!!.saveResource(resource, ByteArrayInputStream(serialized))
             editor.updateResourceView()
-            this.graphicsManagerController.reloadGraphics()
+            this.editor.updateGraphicsView()
             close()
         }
     }

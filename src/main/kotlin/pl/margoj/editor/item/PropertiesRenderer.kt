@@ -76,7 +76,6 @@ class PropertiesRenderer(val renderers: Collection<ItemPropertyRenderer<*, *, *>
                 BooleanPropertyRenderer(),
                 CategoryPropertyRenderer(),
                 RarityPropertyRenderer(),
-                IconPropertyRenderer(),
                 ProfessionRequirementPropertyRenderer(),
                 CooldownPropertyRenderer(),
                 TeleportPropertyRenderer()

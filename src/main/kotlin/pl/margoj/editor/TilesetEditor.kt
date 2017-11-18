@@ -73,7 +73,7 @@ class TilesetEditor(val workspaceController: WorkspaceController)
                         continue
                     }
 
-                    bundle!!.saveResource(ResourceView(id, "", MargoResource.Category.TILESETS, "$id.png"), FileInputStream(file))
+                    bundle!!.saveResource(ResourceView(id, "", null, MargoResource.Category.TILESETS, "$id.png"), FileInputStream(file))
                     bundle!!.touched = true
                 }
             }
@@ -158,7 +158,7 @@ class TilesetEditor(val workspaceController: WorkspaceController)
 
                 if (file.exists())
                 {
-                    bundle!!.saveResource(ResourceView(filename.substring(0, filename.lastIndexOf('.')), "", MargoResource.Category.TILESETS, filename), FileInputStream(file))
+                    bundle!!.saveResource(ResourceView(filename.substring(0, filename.lastIndexOf('.')), "", null, MargoResource.Category.TILESETS, filename), FileInputStream(file))
                     bundle!!.touched = true
                 }
             }

@@ -7,6 +7,7 @@ import javafx.scene.input.KeyCode
 import javafx.scene.text.Text
 import org.apache.commons.lang3.StringUtils
 import org.apache.logging.log4j.LogManager
+import pl.margoj.editor.graphic.GraphicEditor
 import pl.margoj.editor.gui.controllers.WorkspaceController
 import pl.margoj.editor.gui.objects.ResourceCellFactory
 import pl.margoj.editor.gui.utils.QuickAlert
@@ -45,8 +46,9 @@ class MargoJEditor private constructor()
     val mapEditor: MapEditor = MapEditor(this)
     val itemEditor: ItemEditor = ItemEditor(this)
     val npcEditor: NpcEditor = NpcEditor(this)
+    val graphicEditor = GraphicEditor(this)
     var mrfFile: File? = null
-    val editors = listOf(this.mapEditor, this.itemEditor, this.npcEditor)
+    val editors = listOf(this.mapEditor, this.itemEditor, this.npcEditor, this.graphicEditor)
     val resourceItems: MutableList<(Boolean) -> Unit> = ArrayList()
 
     var currentResourceBundle: MountResourceBundle? = null
@@ -78,6 +80,7 @@ class MargoJEditor private constructor()
             }
 
             tilesetEditor.bundle = value
+            graphicEditor.updateGraphicsView()
         }
 
     fun init(workspaceController: WorkspaceController)
@@ -157,6 +160,7 @@ class MargoJEditor private constructor()
 
         this.itemEditor.updateItemsView()
         this.npcEditor.updateNpcsView()
+        this.graphicEditor.updateGraphicsView()
     }
 
     fun updateResourceViewElement()
@@ -344,7 +348,7 @@ class MargoJEditor private constructor()
             {
                 for (id in missingTilesets)
                 {
-                    bundle.saveResource(ResourceView(id, "", MargoResource.Category.TILESETS, "$id.png"), FileInputStream(File(FileUtils.TILESETS_DIRECTORY, "$id.png")))
+                    bundle.saveResource(ResourceView(id, "", null, MargoResource.Category.TILESETS, "$id.png"), FileInputStream(File(FileUtils.TILESETS_DIRECTORY, "$id.png")))
                 }
 
                 tilesetEditor.reload()

@@ -14,14 +14,13 @@ import javafx.scene.text.Text
 import javafx.stage.Stage
 import javafx.util.Callback
 import pl.margoj.editor.MargoJEditor
-import pl.margoj.editor.gui.controllers.GraphicText
-import pl.margoj.editor.gui.controllers.GraphicsManagerController
+import pl.margoj.editor.graphic.GraphicEditor
 import pl.margoj.editor.gui.utils.FXUtils
 import pl.margoj.mrf.MargoResource
 import java.io.ByteArrayInputStream
 import javax.imageio.ImageIO
 
-class GraphicCellFactory(private val graphicsManagerController: GraphicsManagerController) : Callback<ListView<Text>, ListCell<Text>>
+class GraphicCellFactory(private val editor: GraphicEditor) : Callback<ListView<Text>, ListCell<Text>>
 {
     override fun call(param: ListView<Text>): ListCell<Text>
     {
@@ -35,7 +34,7 @@ class GraphicCellFactory(private val graphicsManagerController: GraphicsManagerC
             super.updateItem(item, empty)
             graphic = item
 
-            if (item is GraphicText)
+            if (item is GraphicEditor.GraphicText)
             {
                 val id = item.graphicId
                 val menu = ContextMenu()
@@ -47,7 +46,7 @@ class GraphicCellFactory(private val graphicsManagerController: GraphicsManagerC
                     val view = bundle.getResource(MargoResource.Category.GRAPHIC, id)!!
                     val resource = bundle.loadResource(view)!!
 
-                    val icon = GraphicsManagerController.graphicDeserializer.deserialize(resource)
+                    val icon = GraphicEditor.graphicDeserializer.deserialize(resource)
                     val image = ImageIO.read(ByteArrayInputStream(icon.icon.image))
                     val fxImage = SwingFXUtils.toFXImage(image, null)
 
@@ -62,10 +61,14 @@ class GraphicCellFactory(private val graphicsManagerController: GraphicsManagerC
                     stage.isResizable = false
                     stage.title = view.name
                     stage.scene = Scene(parent)
-                    stage.initOwner(graphicsManagerController.scene.stage)
+                    stage.initOwner(editor.workspaceController.scene.stage)
                     stage.sizeToScene()
                     FXUtils.setStageIcon(stage, "icon.png")
                     stage.showAndWait()
+                }
+
+                deleteGraphic.setOnAction {
+                    MargoJEditor.INSTANCE.deleteResource(MargoJEditor.INSTANCE.currentResourceBundle!!.getResource(MargoResource.Category.GRAPHIC, id)!!)
                 }
 
                 menu.items.addAll(showGraphic, deleteGraphic)
